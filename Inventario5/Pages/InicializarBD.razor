@@ -72,13 +72,13 @@ protected void insertarDatos(SqlConnection con, string nombreTabla, string[] dat
         throw;
     }
 }
-protected int insertarDatosGetId(SqlConnection con, string nombreTabla, string[] datos) {
+protected decimal insertarDatosGetId(SqlConnection con, string nombreTabla, string[] datos) {
     insertarDatos(con, nombreTabla, datos);
-    int result;
+    decimal result;
     using (SqlCommand com = con.CreateCommand()) {
         com.CommandText = "select @@identity";
         try {
-            result = (Int32)com.ExecuteScalar();
+            result = (decimal)com.ExecuteScalar();
         } catch (Exception ex) {
             this.mensaje(ex.Message);
             throw;
@@ -113,7 +113,7 @@ protected async Task DatosPruebasExec() {
 
     int idElementoInventariable = (Int32)this.insertarDatosGetId(con, "elementoInventariable", new string[] { comillas("PTKJ3204"), comillas("Nada relevante") ,"1","1","1" } );
     
-    this.insertarDatos(con, "ordenador", new string[] {idElementoInventariable.ToString(), comillas("NS34567654XD"), "16", "1", "1","1","1","1","1"  });
+    this.insertarDatos(con, "ordenador", new string[] {idElementoInventariable.ToString(), comillas("NS34567654XD"), "16", "1", "1","1","1","1"  });
     this.insertarDatos(con, "workstation", new string[] {idElementoInventariable.ToString()});
 
     /*
