@@ -14,10 +14,10 @@ namespace Inventario5.Models
         public int? IdUbicacion { get; set; }
         public int? IdMarcaYmodelo { get; set; }
 
-        public virtual Ordenador Id1 { get; set; }
         public virtual Marcaymodelo IdMarcaYmodeloNavigation { get; set; }
-        public virtual Monitor IdNavigation { get; set; }
         public virtual Persona IdPersonaNavigation { get; set; }
         public virtual Ubicacion IdUbicacionNavigation { get; set; }
+        public virtual Monitor Monitor { get; set; }
+        public virtual Ordenador Ordenador { get; set; }
     }
 }

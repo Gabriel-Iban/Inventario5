@@ -1,18 +1,20 @@
 ﻿using System;
-using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 #nullable disable
 
-namespace Inventario5.Models {
-    public partial class InventarioDBContext : DbContext {
-        public InventarioDBContext() {
+namespace Inventario5.Models
+{
+    public partial class InventarioDBContext : DbContext
+    {
+        public InventarioDBContext()
+        {
         }
 
         public InventarioDBContext(DbContextOptions<InventarioDBContext> options)
-            : base(options) {
+            : base(options)
+        {
         }
 
         public virtual DbSet<ElementoInventariable> ElementoInventariables { get; set; }
@@ -26,23 +28,22 @@ namespace Inventario5.Models {
         public virtual DbSet<Unidad> Unidads { get; set; }
         public virtual DbSet<Workstation> Workstations { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            if (!optionsBuilder.IsConfigured) {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appsettings.json")
-               .Build();
-                var connectionString = configuration.GetConnectionString("AppConnection");
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=InventarioDB;Trusted_Connection=True;");
             }
         }
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            modelBuilder.Entity<ElementoInventariable>(entity => {
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ElementoInventariable>(entity =>
+            {
                 entity.ToTable("elementoInventariable");
 
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Codigo)
                     .HasMaxLength(30)
@@ -58,18 +59,6 @@ namespace Inventario5.Models {
                 entity.Property(e => e.Notas)
                     .HasColumnType("text")
                     .HasColumnName("notas");
-
-                entity.HasOne(d => d.IdNavigation)
-                    .WithOne(p => p.ElementoInventariable)
-                    .HasForeignKey<ElementoInventariable>(d => d.Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_elementoInventariable_monitor");
-
-                entity.HasOne(d => d.Id1)
-                    .WithOne(p => p.ElementoInventariable)
-                    .HasForeignKey<ElementoInventariable>(d => d.Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_elementoInventariable_ordenador");
 
                 entity.HasOne(d => d.IdMarcaYmodeloNavigation)
                     .WithMany(p => p.ElementoInventariables)
@@ -87,7 +76,8 @@ namespace Inventario5.Models {
                     .HasConstraintName("FK_elementoInventariable_ubicacion");
             });
 
-            modelBuilder.Entity<Marcaymodelo>(entity => {
+            modelBuilder.Entity<Marcaymodelo>(entity =>
+            {
                 entity.ToTable("marcaymodelo");
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -98,7 +88,8 @@ namespace Inventario5.Models {
                     .HasColumnName("nombre");
             });
 
-            modelBuilder.Entity<Monitor>(entity => {
+            modelBuilder.Entity<Monitor>(entity =>
+            {
                 entity.ToTable("monitor");
 
                 entity.Property(e => e.Id)
@@ -109,13 +100,20 @@ namespace Inventario5.Models {
 
                 entity.Property(e => e.TamanoPantalla).HasColumnName("tamanoPantalla");
 
+                entity.HasOne(d => d.IdNavigation)
+                    .WithOne(p => p.Monitor)
+                    .HasForeignKey<Monitor>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_monitor_elementoInventariable");
+
                 entity.HasOne(d => d.IdWorkstationNavigation)
                     .WithMany(p => p.Monitors)
                     .HasForeignKey(d => d.IdWorkstation)
                     .HasConstraintName("FK_monitor_workstation");
             });
 
-            modelBuilder.Entity<Ordenador>(entity => {
+            modelBuilder.Entity<Ordenador>(entity =>
+            {
                 entity.ToTable("ordenador");
 
                 entity.Property(e => e.Id)
@@ -140,13 +138,7 @@ namespace Inventario5.Models {
                     .WithOne(p => p.Ordenador)
                     .HasForeignKey<Ordenador>(d => d.Id)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ordenador_portatil");
-
-                entity.HasOne(d => d.Id1)
-                    .WithOne(p => p.Ordenador)
-                    .HasForeignKey<Ordenador>(d => d.Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ordenador_workstation");
+                    .HasConstraintName("FK_ordenador_elementoInventariable");
 
                 entity.HasOne(d => d.IdProcesadorNavigation)
                     .WithMany(p => p.Ordenadors)
@@ -164,7 +156,8 @@ namespace Inventario5.Models {
                     .HasConstraintName("FK_ordenador_memoria_unidad");
             });
 
-            modelBuilder.Entity<Persona>(entity => {
+            modelBuilder.Entity<Persona>(entity =>
+            {
                 entity.ToTable("persona");
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -180,7 +173,8 @@ namespace Inventario5.Models {
                     .HasColumnName("nombre");
             });
 
-            modelBuilder.Entity<Portatil>(entity => {
+            modelBuilder.Entity<Portatil>(entity =>
+            {
                 entity.ToTable("portatil");
 
                 entity.Property(e => e.Id)
@@ -188,9 +182,16 @@ namespace Inventario5.Models {
                     .HasColumnName("id");
 
                 entity.Property(e => e.TamanoPantalla).HasColumnName("tamanoPantalla");
+
+                entity.HasOne(d => d.IdNavigation)
+                    .WithOne(p => p.Portatil)
+                    .HasForeignKey<Portatil>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_portatil_ordenador");
             });
 
-            modelBuilder.Entity<Procesador>(entity => {
+            modelBuilder.Entity<Procesador>(entity =>
+            {
                 entity.ToTable("procesador");
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -201,7 +202,8 @@ namespace Inventario5.Models {
                     .HasColumnName("nomb");
             });
 
-            modelBuilder.Entity<Ubicacion>(entity => {
+            modelBuilder.Entity<Ubicacion>(entity =>
+            {
                 entity.ToTable("ubicacion");
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -212,7 +214,8 @@ namespace Inventario5.Models {
                     .HasColumnName("nomb");
             });
 
-            modelBuilder.Entity<Unidad>(entity => {
+            modelBuilder.Entity<Unidad>(entity =>
+            {
                 entity.ToTable("unidad");
 
                 entity.Property(e => e.Id)
@@ -225,12 +228,19 @@ namespace Inventario5.Models {
                     .HasColumnName("nomb");
             });
 
-            modelBuilder.Entity<Workstation>(entity => {
+            modelBuilder.Entity<Workstation>(entity =>
+            {
                 entity.ToTable("workstation");
 
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()
                     .HasColumnName("id");
+
+                entity.HasOne(d => d.IdNavigation)
+                    .WithOne(p => p.Workstation)
+                    .HasForeignKey<Workstation>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_workstation_ordenador");
             });
 
             OnModelCreatingPartial(modelBuilder);

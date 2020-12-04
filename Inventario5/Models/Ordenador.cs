@@ -16,11 +16,11 @@ namespace Inventario5.Models
         public int? IdProcesador { get; set; }
         public int? VelocidadProcesador { get; set; }
 
-        public virtual Workstation Id1 { get; set; }
-        public virtual Portatil IdNavigation { get; set; }
+        public virtual ElementoInventariable IdNavigation { get; set; }
         public virtual Procesador IdProcesadorNavigation { get; set; }
         public virtual Unidad UnidadDiscoDuroNavigation { get; set; }
         public virtual Unidad UnidadMemoriaNavigation { get; set; }
-        public virtual ElementoInventariable ElementoInventariable { get; set; }
+        public virtual Portatil Portatil { get; set; }
+        public virtual Workstation Workstation { get; set; }
     }
 }

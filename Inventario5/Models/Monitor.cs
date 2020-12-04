@@ -13,7 +13,7 @@ namespace Inventario5.Models
         public int? ResolucionY { get; set; }
         public int? IdWorkstation { get; set; }
 
+        public virtual ElementoInventariable IdNavigation { get; set; }
         public virtual Workstation IdWorkstationNavigation { get; set; }
-        public virtual ElementoInventariable ElementoInventariable { get; set; }
     }
 }

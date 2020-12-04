@@ -14,7 +14,7 @@ namespace Inventario5.Models
 
         public int Id { get; set; }
 
-        public virtual Ordenador Ordenador { get; set; }
+        public virtual Ordenador IdNavigation { get; set; }
         public virtual ICollection<Monitor> Monitors { get; set; }
     }
 }
