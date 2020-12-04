@@ -1,0 +1,194 @@
+﻿@page "/WorkstationFE"
+@page "/WorkstationFE/{operation}/{id:int}"
+
+@inject NavigationManager NavigationManager
+
+@using Inventario5.Data
+@using Inventario5.Models
+@using Microsoft.EntityFrameworkCore;
+@using Inventario5.Shared.clases;
+
+<h1>Estación de Trabajo</h1>
+
+@if (item == null) {
+    <p><em>Cargando...</em></p>
+} else {
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2>Añadir</h2>
+            </div>
+        </div>
+        <EditForm Model="item">
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="codigo" class="control-label">Código</label>
+                        <InputText @bind-Value="borrame" id="codigo" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="numeroserie" class="control-label">Número de Serie</label>
+                        <InputText @bind-Value="borrame" id="numeroserie" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="memoria" class="control-label">Memoria</label>
+                        <InputText @bind-Value="borrame" id="memoria" class="form-control" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="unidadMemoria" class="control-label">Unidad</label>
+                        <InputSelect @bind-Value="borrame" id="unidadMemoria" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="discoduro" class="control-label">Disco Duro</label>
+                        <InputText @bind-Value="borrame" id="discoduro" class="form-control" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="unidadMemoria" class="control-label">Unidad</label>
+                        <InputSelect @bind-Value="borrame" id="unidadMemoria" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idProcesador" class="control-label">Procesador</label>
+                        <InputSelect @bind-Value="borrame" id="idProcesador" class="form-control" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="velocidadProcesador" class="control-label">Velocidad Procesador</label>
+                        <InputText @bind-Value="borrame" id="discoduro" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idPersona" class="control-label">Persona asignada</label>
+                        <div class="input-group mb-3">
+                            <InputText @bind-Value="borrame" class="form-control"/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon2">Buscar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idPersona" class="control-label">Ubicación</label>
+                        <div class="input-group mb-3">
+                            <InputText @bind-Value="borrame" class="form-control"/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon2">Buscar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idPersona" class="control-label">Marca y Modelo</label>
+                        <div class="input-group mb-3">
+                            <InputText @bind-Value="borrame" class="form-control"/>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="basic-addon2">Buscar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idPersona" class="control-label">Notas</label>
+                        <InputTextArea @bind-Value="borrame" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
+                </div>
+                <div class="col">
+                    <a class="btn btn-secondary" href="ProcesadorFL">Cancelar</a>
+                </div>
+            </div>
+            
+
+
+
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Operation { get; set; }
+    [Parameter]
+    public int Id { get; set; }
+
+    private string OperationText;
+
+    private string borrame;
+
+    private Workstation item;
+    private InventarioDBContext context = new InventarioDBContext();
+
+    protected override async Task OnInitializedAsync() {
+        this.OperationText = On.getText(Operation);
+        switch (Operation) {
+            case On.insert:
+                item = new Workstation();
+                break;
+            case On.update:
+            case On.delete:
+                item = context.Workstations.Find(Id);
+                break;
+            default:
+                throw new Exception("Operación no considerada");
+        }
+    }
+    protected void MakeOperation() {
+        switch (Operation) {
+            case On.insert:
+                context.Workstations.Add(item);
+                break;
+
+            case On.update:
+                context.Workstations.Update(item);
+                break;
+
+            case On.delete:
+                context.Workstations.Remove(item);
+                break;
+            default:
+                throw new Exception("Operación no considerada");
+        }
+        var changesNumber = context.SaveChanges();
+        if (changesNumber > 0) {
+            NavigationManager.NavigateTo("ProcesadorFL");
+        }
+
+    }
+}

@@ -1,0 +1,92 @@
+﻿@page "/ProcesadorFE"
+@page "/ProcesadorFE/{operation}/{id:int}"
+
+@inject NavigationManager NavigationManager
+
+@using Inventario5.Data
+@using Inventario5.Models
+@using Microsoft.EntityFrameworkCore;
+@using Inventario5.Shared.clases;
+
+<h1>Procesador</h1>
+
+@if (item == null) {
+    <p><em>Cargando...</em></p>
+} else {
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2>@OperationText</h2>
+            </div>
+        </div>
+        <EditForm Model="item">
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="codigo" class="control-label">Nombre</label>
+                        <InputText @bind-Value="item.Nomb" id="codigo" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
+                </div>
+                <div class="col">
+                    <a class="btn btn-secondary" href="ProcesadorFL">Cancelar</a>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Operation { get; set; }
+    [Parameter]
+    public int Id { get; set; }
+
+    private string OperationText;
+
+
+
+    private Procesador item;
+    private InventarioDBContext context = new InventarioDBContext();
+
+    protected override async Task OnInitializedAsync() {
+        this.OperationText = On.getText(Operation);
+        switch (Operation) {
+            case On.insert:
+                item = new Procesador();
+                break;
+            case On.update:
+            case On.delete:
+                item = context.Procesadors.Find(Id);
+                break;
+            default:
+                throw new Exception("Operación no considerada");
+        }
+    }
+    protected void MakeOperation() {
+        switch (Operation) {
+            case On.insert:
+                context.Procesadors.Add(item);
+                break;
+
+            case On.update:
+                context.Procesadors.Update(item);
+                break;
+
+            case On.delete:
+                context.Procesadors.Remove(item);
+                break;
+            default:
+                throw new Exception("Operación no considerada");
+        }
+        var changesNumber = context.SaveChanges();
+        if (changesNumber > 0) {
+            NavigationManager.NavigateTo("ProcesadorFL");
+        }
+
+    }
+}

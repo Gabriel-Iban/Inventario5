@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Inventario5.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Inventario5 {
     public class Startup {
@@ -24,7 +26,10 @@ namespace Inventario5 {
         public void ConfigureServices(IServiceCollection services) {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
+            services.AddSingleton<WeatherForecastService>(); //***borrar al final
+            services.AddDbContext<InventarioDBContext>(options =>
+                 options.UseSqlServer(Configuration.GetConnectionString("AppConnection")));
+            services.AddDatabaseDeveloperPageExceptionFilter();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

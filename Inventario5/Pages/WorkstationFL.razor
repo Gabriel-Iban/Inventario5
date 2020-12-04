@@ -1,0 +1,55 @@
+﻿@page "/WorkstationFL"
+@inject NavigationManager NavigationManager
+@using Inventario5.Data
+@using Inventario5.Models
+@using Microsoft.EntityFrameworkCore;
+@using Inventario5.Shared.clases;
+
+<h1>Estaciones de Trabajo</h1>
+
+
+@if (lItem == null) {
+    <p><em>Cargando...</em></p>
+} else {
+    <div class="container">
+    <div class="row">
+        <div class="col"><h2>Lista</h2></div>
+                            
+        <div class="col-auto"><NavLink class="btn btn-primary" href="WorkstationFE/insert/0">Nueva Estación de Trabajo</NavLink></div>
+    </div>
+        <output>@mensaje</output>
+        <table class="table">
+            <thead>
+                <tr >
+                    <th >Código</th>
+                    <th >Número de Serie</th>
+                    <th >Persona</th>
+                    <th >Ubicación</th>
+                    <th >Marca y Modelo</th>
+                    <th >Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in lItem) {
+                    <tr>
+                        <td >@item.Id</td>
+                        <td >
+                            @((MarkupString)On.generateButtons("Workstation",item.Id))
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+
+@code {
+    private DbSet<Workstation> lItem;
+    private string mensaje = "";
+    private InventarioDBContext context = new InventarioDBContext();
+
+    protected override async Task OnInitializedAsync() {
+        lItem = context.Workstations;
+    }
+}

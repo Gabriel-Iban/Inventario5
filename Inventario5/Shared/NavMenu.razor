@@ -1,4 +1,6 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@using Inventario5.Shared.clases;
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Inventario5</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -7,31 +9,53 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
+        <!--        <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Home
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="counter">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="fetchdata">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                    </NavLink>
+                </li>
+        -->
+        @foreach (var item in lItemMenu) { 
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="@item.Url">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> @item.Texto
+                </NavLink>
+            </li>
+
+        }
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="InicializarBD">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Inicializar BD
+                </NavLink>
+            </li>
     </ul>
 </div>
 
 @code {
+    private ItemMenu[] lItemMenu = new ItemMenu[] { new ItemMenu("Portátiles","portatil"),
+        new ItemMenu("Monitores","monitor"),
+        new ItemMenu("Estaciones de Trabajo","WorkstationFL"),
+        new ItemMenu("Personas","persona"),
+        new ItemMenu("Ubicaciones","ubicacion"),
+        new ItemMenu("MarcayModelo","marcaymodelo"),
+        new ItemMenu("Unidad","unidad"),
+        new ItemMenu("Procesador","ProcesadorFL") };
+
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
-    {
+    private void ToggleNavMenu() {
         collapseNavMenu = !collapseNavMenu;
     }
 }

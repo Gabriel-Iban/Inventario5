@@ -1,0 +1,137 @@
+﻿@page "/InicializarBD"
+
+@using System.Data.SqlClient
+@using System.Text
+
+@inject IJSRuntime JS
+
+
+
+<h1>Inicializar BD</h1>
+
+<p>Pulse el botón para eliminar los datos actuales y rellenar con datos para pruebas</p>
+
+<div>
+    <button class="btn btn-primary" @onclick="DatosPruebasExec">Rellenar con datos</button>
+    <div>
+        <output class="alert alert-secondary mt-4" role="alert" style="width:100%"><ul>@((MarkupString)mensajes)</ul></output>
+    </div>
+
+</div>
+
+@code {
+private string mensajes;
+
+
+protected string[] nombresTablas = { "portatil", "monitor", "workstation", "monitor", "ordenador", "elementoinventariable", "persona", "ubicacion", "marcaymodelo", "unidad", "procesador" };
+protected void vaciarTablas(SqlConnection con) {
+    foreach (var item in nombresTablas) {
+        vaciarTabla(con, item);
+    }
+}
+protected void vaciarTabla(SqlConnection con, string nombreTabla) {
+    SqlCommand com = con.CreateCommand();
+    com.CommandText = "delete from " + nombreTabla;
+    com.ExecuteNonQuery();
+    try {
+        com.CommandText = "DBCC CHECKIDENT('[" + nombreTabla + "]', RESEED, 0)";
+        com.ExecuteNonQuery();
+    } catch (Exception) {// nos comemos la excepción por si no tiene columna identidad
+
+    }
+}
+protected void mensaje(string cad) {
+    this.mensajes += "<li>" + cad + "</li>";
+}
+protected string comillas(string cad) {
+    return "'" + cad + "'";
+}
+protected void insertarDatos(SqlConnection con, string nombreTabla, string[] datos) {
+    SqlCommand com = con.CreateCommand();
+    StringBuilder sb = new StringBuilder();
+    sb.Append("insert into ");
+    sb.Append(nombreTabla);
+    sb.Append(" values (");
+    bool primero = true;
+    foreach (var item in datos) {
+
+        if (primero) {
+            primero = false;
+        } else {
+            sb.Append(",");
+        }
+        sb.Append(item);
+    }
+    sb.Append(")");
+    this.mensaje(sb.ToString());
+    com.CommandText = sb.ToString();
+    try {
+        com.ExecuteNonQuery();
+    } catch (Exception ex) {
+        this.mensaje(ex.Message);
+        throw;
+    }
+}
+protected int insertarDatosGetId(SqlConnection con, string nombreTabla, string[] datos) {
+    insertarDatos(con, nombreTabla, datos);
+    int result;
+    using (SqlCommand com = con.CreateCommand()) {
+        com.CommandText = "select @@identity";
+        try {
+            result = (Int32)com.ExecuteScalar();
+        } catch (Exception ex) {
+            this.mensaje(ex.Message);
+            throw;
+        }
+    }
+    return result;
+}
+protected async Task DatosPruebasExec() {
+    SqlConnection con = new System.Data.SqlClient.SqlConnection();
+    //con.ConnectionString = "Source=(local);Initial Catalog=\"InventarioDB\";Integrated Security=True";
+    con.ConnectionString = "Server=localhost\\SQLEXPRESS;Database=InventarioDB;Trusted_Connection=True;";
+    con.Open();
+
+    this.mensaje("conexión abierta");
+
+    this.vaciarTablas(con);
+
+    this.insertarDatos(con, "procesador", new string[] { comillas("AMD Ryzen Threadripper 3970X") });
+    this.insertarDatos(con, "procesador", new string[] { comillas("Intel Core i9-10940X") });
+
+    this.insertarDatos(con, "unidad", new string[] { comillas("Megabyte") });
+    this.insertarDatos(con, "unidad", new string[] { comillas("GigaByte") });
+
+    this.insertarDatos(con, "marcaymodelo", new string[] { comillas("HP / EliteBook 840 G7") });
+    this.insertarDatos(con, "marcaymodelo", new string[] { comillas("Lenovo / Yoga 730") });
+
+    this.insertarDatos(con, "ubicacion", new string[] { comillas("Sede Central / Despacho 1") });
+    this.insertarDatos(con, "ubicacion", new string[] { comillas("Sede Coruña / Despacho 3") });
+
+    this.insertarDatos(con, "persona", new string[] { comillas("Gabriel Ibán"), comillas("Cruz Fraguela") });
+    this.insertarDatos(con, "persona", new string[] { comillas("Pablo"), comillas("Vázquez Fernández") });
+
+    int idElementoInventariable = (Int32)this.insertarDatosGetId(con, "elementoInventariable", new string[] { comillas("PTKJ3204"), comillas("Nada relevante") ,"1","1","1" } );
+    
+    this.insertarDatos(con, "ordenador", new string[] {idElementoInventariable.ToString(), comillas("NS34567654XD"), "16", "1", "1","1","1","1","1"  });
+    this.insertarDatos(con, "workstation", new string[] {idElementoInventariable.ToString()});
+
+    /*
+    this.insertarDatos(con, )
+
+    "portatil",
+    "monitor",
+    "workstation",
+    "monitor",
+    "ordenador",
+    "elementoinventariable",
+    "persona",
+    "ubicacion",
+    "marcaymodelo",
+    "unidad",
+    */
+
+    con.Close();
+
+}
+}
