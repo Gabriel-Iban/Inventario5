@@ -12,28 +12,32 @@
     <p><em>Cargando...</em></p>
 } else {
     <div class="container">
-    <div class="row">
-        <div class="col"><h2>Lista</h2></div>
-                            
-        <div class="col-auto"><NavLink class="btn btn-primary" href="WorkstationFE/insert/0">Nueva Estación de Trabajo</NavLink></div>
-    </div>
+        <div class="row">
+            <div class="col"><h2>Lista</h2></div>
+
+            <div class="col-auto"><NavLink class="btn btn-primary" href="WorkstationFE/insert/0">Nueva Estación de Trabajo</NavLink></div>
+        </div>
         <output>@mensaje</output>
         <table class="table">
             <thead>
-                <tr >
-                    <th >Código</th>
-                    <th >Número de Serie</th>
-                    <th >Persona</th>
-                    <th >Ubicación</th>
-                    <th >Marca y Modelo</th>
-                    <th >Opciones</th>
+                <tr>
+                    <th>Código</th>
+                    <th>Número de Serie</th>
+                    <th>Persona</th>
+                    <th>Ubicación</th>
+                    <th>Marca y Modelo</th>
+                    <th>Opciones</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in lItem) {
                     <tr>
-                        <td >@item.Id</td>
-                        <td >
+                        <td>@item.Id</td>
+                        <td>@getOrdenador(item).NumeroSerie</td>
+                        <td>@getPersona(item).Nomb</td>
+                        <td>@getUbicacion(item).Nomb</td>
+                        <td>@getMarcaymodelo(item).Nomb</td>
+                        <td>
                             @((MarkupString)On.generateButtons("Workstation",item.Id))
                         </td>
                     </tr>
@@ -45,11 +49,27 @@
 }
 
 @code {
-    private DbSet<Workstation> lItem;
+    private List<Workstation> lItem;
+    private DbSet<Persona> lPersona;
+    private DbSet<Ubicacion> lUbicacion;
+    private DbSet<Marcaymodelo> lMarcaymodelo;
+    private Ordenador getOrdenador(Workstation item) => item.IdNavigation;
+    private ElementoInventariable getElementoInventariable(Workstation item) => item.IdNavigation.IdNavigation;
+    private Persona getPersona(Workstation item) => lPersona.Find(getElementoInventariable(item).IdPersona);
+    private Ubicacion getUbicacion(Workstation item) => lUbicacion.Find(getElementoInventariable(item).IdUbicacion);
+    private Marcaymodelo getMarcaymodelo(Workstation item) => lMarcaymodelo.Find(getElementoInventariable(item).IdMarcaYmodelo);
+
+
     private string mensaje = "";
     private InventarioDBContext context = new InventarioDBContext();
 
-    protected override async Task OnInitializedAsync() {
-        lItem = context.Workstations;
+    protected override void OnInitialized() {
+        this.lItem = context.Workstations
+            .Include(x => x.IdNavigation)
+            .ThenInclude(x => x.IdNavigation)
+            .ToList();
+        this.lPersona = context.Personas;
+        this.lUbicacion = context.Ubicacions;
+        this.lMarcaymodelo = context.Marcaymodelos;
     }
 }

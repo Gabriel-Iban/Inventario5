@@ -82,10 +82,10 @@ namespace Inventario5.Models
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Nombre)
+                entity.Property(e => e.Nomb)
                     .HasMaxLength(100)
                     .IsUnicode(false)
-                    .HasColumnName("nombre");
+                    .HasColumnName("nomb");
             });
 
             modelBuilder.Entity<Monitor>(entity =>
@@ -162,15 +162,10 @@ namespace Inventario5.Models
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Apellidos)
+                entity.Property(e => e.Nomb)
                     .HasMaxLength(60)
                     .IsUnicode(false)
-                    .HasColumnName("apellidos");
-
-                entity.Property(e => e.Nombre)
-                    .HasMaxLength(40)
-                    .IsUnicode(false)
-                    .HasColumnName("nombre");
+                    .HasColumnName("nomb");
             });
 
             modelBuilder.Entity<Portatil>(entity =>

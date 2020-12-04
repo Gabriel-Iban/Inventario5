@@ -13,7 +13,7 @@ namespace Inventario5.Models
         }
 
         public int Id { get; set; }
-        public string Nombre { get; set; }
+        public string Nomb { get; set; }
 
         public virtual ICollection<ElementoInventariable> ElementoInventariables { get; set; }
     }

@@ -20,11 +20,20 @@
             </div>
         </div>
         <EditForm Model="item">
+
             <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label for="codigo" class="control-label">Código</label>
-                        <InputText @bind-Value="borrame" id="codigo" class="form-control" />
+                        <InputText @bind-Value="this.elementoinventariable.Codigo" id="codigo" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="numeroserie" class="control-label">Número de Serie</label>
+                        <InputText @bind-Value="this.ordenador.NumeroSerie" id="numeroserie" class="form-control" />
                     </div>
                 </div>
             </div>
@@ -32,22 +41,18 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="numeroserie" class="control-label">Número de Serie</label>
-                        <InputText @bind-Value="borrame" id="numeroserie" class="form-control" />
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
                         <label for="memoria" class="control-label">Memoria</label>
-                        <InputText @bind-Value="borrame" id="memoria" class="form-control" />
+                        <InputNumber @bind-Value="this.ordenador.Memoria" id="memoria" class="form-control" />
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="unidadMemoria" class="control-label">Unidad</label>
-                        <InputSelect @bind-Value="borrame" id="unidadMemoria" class="form-control" />
+                        <InputSelect @bind-Value="this.ordenador.UnidadMemoria" id="unidadMemoria" class="form-control">
+                            @foreach (var item in lUnidad) {
+                                <option value="@item.Id">@item.Nomb</option>
+                                }
+                        </InputSelect>
                     </div>
                 </div>
             </div>
@@ -55,13 +60,17 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="discoduro" class="control-label">Disco Duro</label>
-                        <InputText @bind-Value="borrame" id="discoduro" class="form-control" />
+                        <InputNumber @bind-Value="this.ordenador.DiscoDuro" id="discoduro" class="form-control" />
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="unidadMemoria" class="control-label">Unidad</label>
-                        <InputSelect @bind-Value="borrame" id="unidadMemoria" class="form-control" />
+                        <label for="unidadDiscoDuro" class="control-label">Unidad</label>
+                        <InputSelect @bind-Value="this.ordenador.UnidadDiscoDuro" id="unidadDiscoDuro" class="form-control">
+                            @foreach (var item in lUnidad) {
+                                <option value="@item.Id">@item.Nomb</option>
+                                }
+                        </InputSelect>
                     </div>
                 </div>
             </div>
@@ -69,22 +78,27 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="idProcesador" class="control-label">Procesador</label>
-                        <InputSelect @bind-Value="borrame" id="idProcesador" class="form-control" />
+                        <InputSelect @bind-Value="this.ordenador.IdProcesador" id="idProcesador" class="form-control">
+                            @foreach (var item in lProcesador) {
+                                <option value="@item.Id">@item.Nomb</option>
+                                }
+                        </InputSelect>
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="velocidadProcesador" class="control-label">Velocidad Procesador</label>
-                        <InputText @bind-Value="borrame" id="discoduro" class="form-control" />
+                        <InputNumber @bind-Value="this.ordenador.VelocidadProcesador" id="velocidadProcesador" class="form-control" />
                     </div>
                 </div>
             </div>
+            <p>Estos 3 últimos campos no son funcionales todavía dado que se utilizarán los grid en lugar de combos y no están hechos todavía</p>
             <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Persona asignada</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="borrame" class="form-control"/>
+                            <InputText @bind-Value="borrame" class="form-control" />
                             <div class="input-group-append">
                                 <span class="input-group-text" id="basic-addon2">Buscar</span>
                             </div>
@@ -97,7 +111,7 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Ubicación</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="borrame" class="form-control"/>
+                            <InputText @bind-Value="borrame" class="form-control" />
                             <div class="input-group-append">
                                 <span class="input-group-text" id="basic-addon2">Buscar</span>
                             </div>
@@ -110,7 +124,7 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Marca y Modelo</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="borrame" class="form-control"/>
+                            <InputText @bind-Value="borrame" class="form-control" />
                             <div class="input-group-append">
                                 <span class="input-group-text" id="basic-addon2">Buscar</span>
                             </div>
@@ -121,8 +135,8 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="idPersona" class="control-label">Notas</label>
-                        <InputTextArea @bind-Value="borrame" class="form-control"/>
+                        <label for="notas" class="control-label">Notas</label>
+                        <InputTextArea @bind-Value="this.elementoinventariable.Notas" id="notas" class="form-control" />
                     </div>
                 </div>
             </div>
@@ -131,13 +145,9 @@
                     <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
                 </div>
                 <div class="col">
-                    <a class="btn btn-secondary" href="ProcesadorFL">Cancelar</a>
+                    <a class="btn btn-secondary" href="WorkstationFL">Cancelar</a>
                 </div>
             </div>
-            
-
-
-
         </EditForm>
     </div>
 }
@@ -153,17 +163,31 @@
     private string borrame;
 
     private Workstation item;
+    private Ordenador ordenador;
+    private ElementoInventariable elementoinventariable;
+    private DbSet<Unidad> lUnidad;
+    private DbSet<Procesador> lProcesador;
+
     private InventarioDBContext context = new InventarioDBContext();
 
-    protected override async Task OnInitializedAsync() {
+    protected override void OnInitialized() {
+        base.OnInitialized();
         this.OperationText = On.getText(Operation);
+        this.lUnidad = context.Unidads;
+        this.lProcesador = context.Procesadors;
         switch (Operation) {
             case On.insert:
-                item = new Workstation();
+                this.item = new Workstation();
+                this.ordenador = new Ordenador();
+                this.elementoinventariable = new ElementoInventariable();
+                this.elementoinventariable.Ordenador = this.ordenador;
+                this.ordenador.Workstation = this.item;
                 break;
             case On.update:
             case On.delete:
-                item = context.Workstations.Find(Id);
+                this.item = context.Workstations.Find(Id);
+                this.ordenador = context.Ordenadors.Find(Id);
+                this.elementoinventariable = context.ElementoInventariables.Find(Id);
                 break;
             default:
                 throw new Exception("Operación no considerada");
@@ -172,23 +196,28 @@
     protected void MakeOperation() {
         switch (Operation) {
             case On.insert:
-                context.Workstations.Add(item);
+                context.ElementoInventariables.Add(this.elementoinventariable);
+                context.Ordenadors.Add(this.ordenador);
+                context.Workstations.Add(this.item);
                 break;
 
             case On.update:
+                context.ElementoInventariables.Update(this.elementoinventariable);
+                context.Ordenadors.Update(this.ordenador);
                 context.Workstations.Update(item);
                 break;
 
             case On.delete:
-                context.Workstations.Remove(item);
+                context.Workstations.Remove(this.item);
+                context.Ordenadors.Remove(this.ordenador);
+                context.ElementoInventariables.Remove(this.elementoinventariable);
                 break;
             default:
                 throw new Exception("Operación no considerada");
         }
         var changesNumber = context.SaveChanges();
         if (changesNumber > 0) {
-            NavigationManager.NavigateTo("ProcesadorFL");
+            NavigationManager.NavigateTo("WorkstationFL");
         }
-
     }
 }

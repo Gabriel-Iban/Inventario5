@@ -108,8 +108,8 @@ protected async Task DatosPruebasExec() {
     this.insertarDatos(con, "ubicacion", new string[] { comillas("Sede Central / Despacho 1") });
     this.insertarDatos(con, "ubicacion", new string[] { comillas("Sede Coruña / Despacho 3") });
 
-    this.insertarDatos(con, "persona", new string[] { comillas("Gabriel Ibán"), comillas("Cruz Fraguela") });
-    this.insertarDatos(con, "persona", new string[] { comillas("Pablo"), comillas("Vázquez Fernández") });
+    this.insertarDatos(con, "persona", new string[] { comillas("Gabriel Ibán Cruz Fraguela") });
+    this.insertarDatos(con, "persona", new string[] { comillas("Pablo Vázquez Fernández") });
 
     int idElementoInventariable = (Int32)this.insertarDatosGetId(con, "elementoInventariable", new string[] { comillas("PTKJ3204"), comillas("Nada relevante") ,"1","1","1" } );
     
