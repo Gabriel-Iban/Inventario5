@@ -1,5 +1,8 @@
 ﻿@page "/WorkstationFL"
+@page "/WorkstationFL/{operation}/{llamador}"
+
 @inject NavigationManager NavigationManager
+
 @using Inventario5.Data
 @using Inventario5.Models
 @using Microsoft.EntityFrameworkCore;
@@ -31,14 +34,15 @@
             </thead>
             <tbody>
                 @foreach (var item in lItem) {
+                    actual = item;
                     <tr>
-                        <td>@item.Id</td>
-                        <td>@getOrdenador(item).NumeroSerie</td>
-                        <td>@getPersona(item).Nomb</td>
-                        <td>@getUbicacion(item).Nomb</td>
-                        <td>@getMarcaymodelo(item).Nomb</td>
+                        <td>@textoElementoInventariableCodigo</td>
+                        <td>@textoOrdenadorNumeroSerie</td>
+                        <td>@textoPersonaNomb</td>
+                        <td>@textoUbicacionNomb</td>
+                        <td>@textoMarcaymodeloNomb</td>
                         <td>
-                            @((MarkupString)On.generateButtons("Workstation",item.Id))
+                            @((MarkupString)On.generateButtons("Workstation",Operation,item.Id))
                         </td>
                     </tr>
                 }
@@ -49,15 +53,20 @@
 }
 
 @code {
-    private List<Workstation> lItem;
-    private DbSet<Persona> lPersona;
-    private DbSet<Ubicacion> lUbicacion;
-    private DbSet<Marcaymodelo> lMarcaymodelo;
-    private Ordenador getOrdenador(Workstation item) => item.IdNavigation;
-    private ElementoInventariable getElementoInventariable(Workstation item) => item.IdNavigation.IdNavigation;
-    private Persona getPersona(Workstation item) => lPersona.Find(getElementoInventariable(item).IdPersona);
-    private Ubicacion getUbicacion(Workstation item) => lUbicacion.Find(getElementoInventariable(item).IdUbicacion);
-    private Marcaymodelo getMarcaymodelo(Workstation item) => lMarcaymodelo.Find(getElementoInventariable(item).IdMarcaYmodelo);
+    [Parameter]
+    public string Operation { get; set; }
+    [Parameter]
+    public string Llamador { get; set; }
+
+    private Workstation actual; //Almacena el elemento actual para no ser necesario el pasarlo como parámetro al pedirlo en otras funciones
+    private List<Workstation> lItem; //Lista de elementos en los que se basa el formulario de lista.
+    private Ordenador Ordenador => actual.IdNavigation; //Utilidad para obtener el ordenador
+    private ElementoInventariable ElementoInventariable => actual.IdNavigation.IdNavigation;//Utilidad para obtener el ElementoInventariable
+    private string textoElementoInventariableCodigo => ElementoInventariable.Codigo ?? "Código no definido";
+    private string textoOrdenadorNumeroSerie => Ordenador.NumeroSerie ?? "Número de serie no definido";
+    private string textoPersonaNomb => ElementoInventariable.IdPersonaNavigation != null ? ElementoInventariable.IdPersonaNavigation.Nomb : "Persona no definida" + actual.ToString();
+    private string textoUbicacionNomb => ElementoInventariable.IdUbicacionNavigation != null ? ElementoInventariable.IdUbicacionNavigation.Nomb : "Ubicación no definida";
+    private string textoMarcaymodeloNomb => ElementoInventariable.IdMarcaYmodeloNavigation != null ? ElementoInventariable.IdMarcaYmodeloNavigation.Nomb : "Marca y modelo no definidos";
 
 
     private string mensaje = "";
@@ -66,10 +75,14 @@
     protected override void OnInitialized() {
         this.lItem = context.Workstations
             .Include(x => x.IdNavigation)
-            .ThenInclude(x => x.IdNavigation)
+                .ThenInclude(x => x.IdNavigation)
+                    .ThenInclude(p => p.IdPersonaNavigation)
+            .Include(x => x.IdNavigation)
+                .ThenInclude(x => x.IdNavigation)
+                    .ThenInclude(u => u.IdUbicacionNavigation)
+            .Include(x => x.IdNavigation)
+                .ThenInclude(x => x.IdNavigation)
+                    .ThenInclude(m => m.IdMarcaYmodeloNavigation)
             .ToList();
-        this.lPersona = context.Personas;
-        this.lUbicacion = context.Ubicacions;
-        this.lMarcaymodelo = context.Marcaymodelos;
     }
 }

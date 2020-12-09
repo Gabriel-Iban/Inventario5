@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Inventario5.Models;
 using Microsoft.EntityFrameworkCore;
+using Inventario5.Shared.clases;
 
 namespace Inventario5 {
     public class Startup {
@@ -30,6 +31,8 @@ namespace Inventario5 {
             services.AddDbContext<InventarioDBContext>(options =>
                  options.UseSqlServer(Configuration.GetConnectionString("AppConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.AddScoped<History>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -83,6 +83,7 @@ namespace Inventario5.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Nomb)
+                    .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("nomb");
@@ -163,6 +164,7 @@ namespace Inventario5.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Nomb)
+                    .IsRequired()
                     .HasMaxLength(60)
                     .IsUnicode(false)
                     .HasColumnName("nomb");
@@ -192,6 +194,7 @@ namespace Inventario5.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Nomb)
+                    .IsRequired()
                     .HasMaxLength(30)
                     .IsUnicode(false)
                     .HasColumnName("nomb");
@@ -204,6 +207,7 @@ namespace Inventario5.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Nomb)
+                    .IsRequired()
                     .HasMaxLength(60)
                     .IsUnicode(false)
                     .HasColumnName("nomb");
@@ -218,6 +222,7 @@ namespace Inventario5.Models
                     .HasColumnName("id");
 
                 entity.Property(e => e.Nomb)
+                    .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false)
                     .HasColumnName("nomb");

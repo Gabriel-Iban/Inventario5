@@ -14,7 +14,7 @@ namespace Inventario5.Models
         public int? DiscoDuro { get; set; }
         public byte? UnidadDiscoDuro { get; set; }
         public int? IdProcesador { get; set; }
-        public int? VelocidadProcesador { get; set; }
+        public float? VelocidadProcesador { get; set; }
 
         public virtual ElementoInventariable IdNavigation { get; set; }
         public virtual Procesador IdProcesadorNavigation { get; set; }

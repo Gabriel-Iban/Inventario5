@@ -1,7 +1,8 @@
 ﻿@page "/WorkstationFE"
-@page "/WorkstationFE/{operation}/{id:int}"
+@page "/WorkstationFE/{operationparameter}/{idparameter:int}"
 
 @inject NavigationManager NavigationManager
+@inject History History
 
 @using Inventario5.Data
 @using Inventario5.Models
@@ -10,22 +11,26 @@
 
 <h1>Estación de Trabajo</h1>
 
-@if (item == null) {
+@if (this.state.item == null) {
     <p><em>Cargando...</em></p>
 } else {
     <div class="container">
         <div class="row">
             <div class="col">
-                <h2>Añadir</h2>
+                <h2>@state.OperationText</h2>
             </div>
         </div>
-        <EditForm Model="item">
+
+        <div>
+            <output class="alert alert-secondary mt-4" role="alert" style="width:100%"><ul>@((MarkupString)mensajes)</ul></output>
+        </div>
+        <EditForm Model="state.item">
 
             <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label for="codigo" class="control-label">Código</label>
-                        <InputText @bind-Value="this.elementoinventariable.Codigo" id="codigo" class="form-control" />
+                        <InputText @bind-Value="this.state.elementoinventariable.Codigo" id="codigo" class="form-control" />
                     </div>
                 </div>
             </div>
@@ -33,7 +38,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="numeroserie" class="control-label">Número de Serie</label>
-                        <InputText @bind-Value="this.ordenador.NumeroSerie" id="numeroserie" class="form-control" />
+                        <InputText @bind-Value="this.state.ordenador.NumeroSerie" id="numeroserie" class="form-control" />
                     </div>
                 </div>
             </div>
@@ -42,13 +47,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="memoria" class="control-label">Memoria</label>
-                        <InputNumber @bind-Value="this.ordenador.Memoria" id="memoria" class="form-control" />
+                        <InputNumber @bind-Value="this.state.ordenador.Memoria" id="memoria" class="form-control" />
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="unidadMemoria" class="control-label">Unidad</label>
-                        <InputSelect @bind-Value="this.ordenador.UnidadMemoria" id="unidadMemoria" class="form-control">
+                        <InputSelect @bind-Value="this.state.ordenador.UnidadMemoria" id="unidadMemoria" class="form-control">
                             @foreach (var item in lUnidad) {
                                 <option value="@item.Id">@item.Nomb</option>
                                 }
@@ -60,13 +65,13 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="discoduro" class="control-label">Disco Duro</label>
-                        <InputNumber @bind-Value="this.ordenador.DiscoDuro" id="discoduro" class="form-control" />
+                        <InputNumber @bind-Value="this.state.ordenador.DiscoDuro" id="discoduro" class="form-control" />
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="unidadDiscoDuro" class="control-label">Unidad</label>
-                        <InputSelect @bind-Value="this.ordenador.UnidadDiscoDuro" id="unidadDiscoDuro" class="form-control">
+                        <InputSelect @bind-Value="this.state.ordenador.UnidadDiscoDuro" id="unidadDiscoDuro" class="form-control">
                             @foreach (var item in lUnidad) {
                                 <option value="@item.Id">@item.Nomb</option>
                                 }
@@ -78,17 +83,18 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="idProcesador" class="control-label">Procesador</label>
-                        <InputSelect @bind-Value="this.ordenador.IdProcesador" id="idProcesador" class="form-control">
-                            @foreach (var item in lProcesador) {
-                                <option value="@item.Id">@item.Nomb</option>
+                        <InputSelect @bind-Value="this.state.ordenador.IdProcesador" id="idProcesador" class="form-control">
+<!--                            @@foreach (var item in lProcesador) {
+                                <option value="@@item.Id">@@item.Nomb</option>
                                 }
+    -->
                         </InputSelect>
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label for="velocidadProcesador" class="control-label">Velocidad Procesador</label>
-                        <InputNumber @bind-Value="this.ordenador.VelocidadProcesador" id="velocidadProcesador" class="form-control" />
+                        <InputNumber @bind-Value="this.state.ordenador.VelocidadProcesador" id="velocidadProcesador" class="form-control" />
                     </div>
                 </div>
             </div>
@@ -98,9 +104,9 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Persona asignada</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="borrame" class="form-control" />
+                            <InputText @bind-Value="this.state.persona.Nomb" class="form-control" />
                             <div class="input-group-append">
-                                <span class="input-group-text" id="basic-addon2">Buscar</span>
+                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnPersonaClick">Buscar</span>
                             </div>
                         </div>
                     </div>
@@ -111,9 +117,9 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Ubicación</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="borrame" class="form-control" />
+                            <InputText @bind-Value="this.state.ubicacion.Nomb" class="form-control" />
                             <div class="input-group-append">
-                                <span class="input-group-text" id="basic-addon2">Buscar</span>
+                                <span class="input-group-text btn btn-primary" id="basic-addon2">Buscar</span>
                             </div>
                         </div>
                     </div>
@@ -124,9 +130,9 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Marca y Modelo</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="borrame" class="form-control" />
+                            <InputText @bind-Value="this.state.marcaymodelo.Nomb" class="form-control" />
                             <div class="input-group-append">
-                                <span class="input-group-text" id="basic-addon2">Buscar</span>
+                                <span class="input-group-text btn btn-primary" id="basic-addon2">Buscar</span>
                             </div>
                         </div>
                     </div>
@@ -136,81 +142,147 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="notas" class="control-label">Notas</label>
-                        <InputTextArea @bind-Value="this.elementoinventariable.Notas" id="notas" class="form-control" />
+                        <InputTextArea @bind-Value="this.state.elementoinventariable.Notas" id="notas" class="form-control" />
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col">
-                    <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
+                <div class="col-6 text-center">
+                    <button class="btn btn-primary" @onclick="MakeOperation">@state.OperationText</button>
                 </div>
-                <div class="col">
+                <div class="col-6 text-center">
                     <a class="btn btn-secondary" href="WorkstationFL">Cancelar</a>
                 </div>
             </div>
         </EditForm>
+        <div>&nbsp;</div>
     </div>
 }
 
 @code {
     [Parameter]
-    public string Operation { get; set; }
+    public string OperationParameter { get; set; }
     [Parameter]
-    public int Id { get; set; }
+    public int IdParameter { get; set; }
 
-    private string OperationText;
+    public class WorkstationFEState : IHistoryItem {
+        public string Operation;
+        public int Id;
 
-    private string borrame;
+        public string OperationText;
 
-    private Workstation item;
-    private Ordenador ordenador;
-    private ElementoInventariable elementoinventariable;
+        //****public string borrame;
+
+        public Workstation item;
+        public Ordenador ordenador;
+        public ElementoInventariable elementoinventariable;
+        public Persona persona = new Persona();
+        public Ubicacion ubicacion = new Ubicacion();
+        public Marcaymodelo marcaymodelo = new Marcaymodelo();
+
+    }
+    public WorkstationFEState state;
+
     private DbSet<Unidad> lUnidad;
-    private DbSet<Procesador> lProcesador;
+//    private DbSet<Procesador> lProcesador;
 
     private InventarioDBContext context = new InventarioDBContext();
 
+    private string mensajes;
+
+    protected void mensaje(string cad) {
+        this.mensajes += "<li>" + cad + "</li>";
+    }
+
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.OperationText = On.getText(Operation);
+        this.state = History.Get(typeof(WorkstationFEState)) as WorkstationFEState;
+        if (this.state == null) {
+            this.state = new WorkstationFEState();
+            this.state.Operation = OperationParameter;
+            this.state.Id = IdParameter;
+            this.state.OperationText = On.getText(this.state.Operation);
+            switch (this.state.Operation) {
+                case On.insert:
+                    this.state.item = new Workstation();
+                    this.state.ordenador = new Ordenador();
+                    this.state.elementoinventariable = new ElementoInventariable();
+                    this.state.elementoinventariable.Ordenador = this.state.ordenador;
+                    this.state.ordenador.Workstation = this.state.item;
+                    break;
+                case On.update:
+                case On.delete:
+                    this.state.item = context.Workstations.Find(this.state.Id);
+                    this.state.ordenador = context.Ordenadors.Find(this.state.Id);
+                    this.state.elementoinventariable = context.ElementoInventariables.Find(this.state.Id);
+                    this.CargarElementosAuxiliares();
+                    break;
+                default:
+                    throw new Exception("Operación no considerada");
+            }
+
+        } else {
+            History.Remove(this.state);
+        }
         this.lUnidad = context.Unidads;
-        this.lProcesador = context.Procesadors;
-        switch (Operation) {
-            case On.insert:
-                this.item = new Workstation();
-                this.ordenador = new Ordenador();
-                this.elementoinventariable = new ElementoInventariable();
-                this.elementoinventariable.Ordenador = this.ordenador;
-                this.ordenador.Workstation = this.item;
-                break;
-            case On.update:
-            case On.delete:
-                this.item = context.Workstations.Find(Id);
-                this.ordenador = context.Ordenadors.Find(Id);
-                this.elementoinventariable = context.ElementoInventariables.Find(Id);
-                break;
-            default:
-                throw new Exception("Operación no considerada");
+        //this.lProcesador = context.Procesadors;
+        Persona persona = History.Get(typeof(Persona)) as Persona;
+        if (persona != null) {
+            this.state.elementoinventariable.IdPersona = persona.Id;
+            this.state.elementoinventariable.IdPersonaNavigation = context.Personas.Find(persona.Id);
+            this.state.persona = persona;
+            History.Remove(persona);
+        }
+        Ubicacion ubicacion = History.Get(typeof(Ubicacion)) as Ubicacion;
+        if (ubicacion != null) {
+            this.state.elementoinventariable.IdUbicacion = ubicacion.Id;
+            this.state.elementoinventariable.IdUbicacionNavigation = context.Ubicacions.Find(ubicacion.Id);
+            this.state.ubicacion = ubicacion;
+            History.Remove(this.state.ubicacion);
+        }
+        Marcaymodelo marcaymodelo = History.Get(typeof(Marcaymodelo)) as Marcaymodelo;
+        if (marcaymodelo != null) {
+            this.state.elementoinventariable.IdMarcaYmodelo = marcaymodelo.Id;
+            this.state.elementoinventariable.IdMarcaYmodeloNavigation = context.Marcaymodelos.Find(marcaymodelo.Id);
+            this.state.marcaymodelo = marcaymodelo;
+            History.Remove(this.state.marcaymodelo);
+        }
+    }
+    protected void CargarElementosAuxiliares() {
+
+        if (this.state.elementoinventariable.IdPersona != null) {
+            this.state.persona = context.Personas.Find(this.state.elementoinventariable.IdPersona);
+        }
+        if (this.state.elementoinventariable.IdUbicacion != null) {
+            this.state.ubicacion = context.Ubicacions.Find(this.state.elementoinventariable.IdUbicacion);
+        }
+        if (this.state.elementoinventariable.IdMarcaYmodelo != null) {
+            this.state.marcaymodelo = context.Marcaymodelos.Find(this.state.elementoinventariable.IdMarcaYmodelo);
         }
     }
     protected void MakeOperation() {
-        switch (Operation) {
+        switch (this.state.Operation) {
             case On.insert:
-                context.ElementoInventariables.Add(this.elementoinventariable);
-                context.Ordenadors.Add(this.ordenador);
-                context.Workstations.Add(this.item);
+                context.ElementoInventariables.Add(this.state.elementoinventariable);
+                context.Ordenadors.Add(this.state.ordenador);
+                context.Workstations.Add(this.state.item);
                 break;
 
             case On.update:
-                context.ElementoInventariables.Update(this.elementoinventariable);
-                context.Ordenadors.Update(this.ordenador);
-                context.Workstations.Update(item);
+                try {
+                    context.ElementoInventariables.Update(this.state.elementoinventariable);
+                }catch(Exception ex) {
+                    string aux = ex.Message;
+                    throw;
+                }
+                context.Ordenadors.Update(this.state.ordenador);
+                context.Workstations.Update(state.item);
                 break;
 
             case On.delete:
-                context.Workstations.Remove(this.item);
-                context.Ordenadors.Remove(this.ordenador);
-                context.ElementoInventariables.Remove(this.elementoinventariable);
+                context.Workstations.Remove(this.state.item);
+                context.Ordenadors.Remove(this.state.ordenador);
+                context.ElementoInventariables.Remove(this.state.elementoinventariable);
                 break;
             default:
                 throw new Exception("Operación no considerada");
@@ -219,5 +291,13 @@
         if (changesNumber > 0) {
             NavigationManager.NavigateTo("WorkstationFL");
         }
+
+    }
+    private void btnPersonaClick() {
+        //Añadir estado al history
+
+        this.History.Add(this.state);
+
+        NavigationManager.NavigateTo("PersonaFL/" + On.select + "/" + "WorkstationFE");
     }
 }

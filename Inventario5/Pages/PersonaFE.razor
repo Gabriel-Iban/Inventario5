@@ -1,5 +1,5 @@
-﻿@page "/ProcesadorFE"
-@page "/ProcesadorFE/{operation}/{id:int}"
+﻿@page "/PersonaFE"
+@page "/PersonaFE/{operation}/{id:int}"
 
 @inject NavigationManager NavigationManager
 
@@ -8,7 +8,7 @@
 @using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
 
-<h1>Procesador</h1>
+<h1>Persona</h1>
 
 @if (item == null) {
     <p><em>Cargando...</em></p>
@@ -33,7 +33,7 @@
                     <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
                 </div>
                 <div class="col">
-                    <a class="btn btn-secondary" href="ProcesadorFL">Cancelar</a>
+                    <a class="btn btn-secondary" href="PersonaFL">Cancelar</a>
                 </div>
             </div>
         </EditForm>
@@ -50,18 +50,18 @@
 
 
 
-    private Procesador item;
+    private Persona item;
     private InventarioDBContext context = new InventarioDBContext();
 
     protected override void OnInitialized() {
         this.OperationText = On.getText(Operation);
         switch (Operation) {
             case On.insert:
-                item = new Procesador();
+                item = new Persona();
                 break;
             case On.update:
             case On.delete:
-                item = context.Procesadors.Find(Id);
+                item = context.Personas.Find(Id);
                 break;
             default:
                 throw new Exception("Operación no considerada");
@@ -70,22 +70,22 @@
     protected void MakeOperation() {
         switch (Operation) {
             case On.insert:
-                context.Procesadors.Add(item);
+                context.Personas.Add(item);
                 break;
 
             case On.update:
-                context.Procesadors.Update(item);
+                context.Personas.Update(item);
                 break;
 
             case On.delete:
-                context.Procesadors.Remove(item);
+                context.Personas.Remove(item);
                 break;
             default:
                 throw new Exception("Operación no considerada");
         }
         var changesNumber = context.SaveChanges();
         if (changesNumber > 0) {
-            NavigationManager.NavigateTo("ProcesadorFL");
+            NavigationManager.NavigateTo("PersonaFL");
         }
 
     }

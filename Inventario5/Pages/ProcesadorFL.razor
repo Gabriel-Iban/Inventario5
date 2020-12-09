@@ -1,12 +1,13 @@
 ﻿@page "/ProcesadorFL"
+@page "/ProcesadorFL/{operation}/{llamador}"
+
 @inject NavigationManager NavigationManager
-@using Inventario5.Data
+
 @using Inventario5.Models
 @using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
 
 <h1>Procesadores</h1>
-
 
 @if (lItem == null) {
     <p><em>Cargando...</em></p>
@@ -17,7 +18,10 @@
                             
         <div class="col-auto"><NavLink class="btn btn-primary" href="ProcesadorFE/insert/0">Nuevo Procesador</NavLink></div>
     </div>
-        <output>@mensaje</output>
+        <output>
+        @Operation <br/> @Llamador <br/>
+        @mensaje</output>
+
         <table class="table">
             <thead>
                 <tr >
@@ -30,7 +34,7 @@
                     <tr>
                         <td >@item.Nomb</td>
                         <td >
-                            @((MarkupString)On.generateButtons("Procesador",item.Id))
+                           ((MarkupString)On.generateButtons("Procesador",Operation,item.Id))
 
                         </td>
                     </tr>
@@ -42,11 +46,16 @@
 }
 
 @code {
+    [Parameter]
+    public string Operation { get; set; }
+    [Parameter]
+    public string Llamador { get; set; }
+
     private DbSet<Procesador> lItem;
     private string mensaje = "";
     private InventarioDBContext context = new InventarioDBContext();
 
-    protected override async Task OnInitializedAsync() {
+    protected override void OnInitialized() {
         lItem = context.Procesadors;
     }
 }

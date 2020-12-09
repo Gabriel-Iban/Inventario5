@@ -1,0 +1,110 @@
+﻿@page "/PersonaFL"
+@page "/PersonaFL/{operationparameter}/{llamadorparameter}"
+
+@inject NavigationManager NavigationManager
+@inject History History;
+
+@using Inventario5.Models
+@using Microsoft.EntityFrameworkCore;
+@using Inventario5.Shared.clases;
+
+<h1>Personas</h1>
+
+@if (lItem == null) {
+    <p><em>Cargando...</em></p>
+} else {
+    <div class="container">
+        <div class="row">
+            <div class="col"><h2>Lista</h2></div>
+
+            <div class="col-auto">
+                @if (this.state.Operation == On.select) {
+                    <button class="btn btn-primary" @onclick="SalirSinSeleccionar">Salir sin seleccionar</button>@:&nbsp;
+                }
+                <button class="btn btn-primary" @onclick="Insert">Nueva Persona</button>
+            </div>
+        </div>
+        <output>
+            @mensaje
+        </output>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in lItem) {
+                    <tr>
+                        <td>@item.Nomb</td>
+                        <td>
+                            <div style="white-space: nowrap;">
+                                @if ((this.state.Operation != null) && (this.state.Operation.Equals(On.select))) {
+                                    <button class="btn btn-primary" @onclick="() => Select(item)">Seleccionar</button>@:&nbsp;
+                                }
+                                <button class="btn btn-primary" @onclick="() => Update(item)">Modificar</button>&nbsp;
+                                <button class="btn btn-primary" @onclick="() => Delete(item)">Eliminar</button>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+
+@code {
+    [Parameter]
+    public string OperationParameter { get; set; }
+    [Parameter]
+    public string LlamadorParameter { get; set; }
+
+    public class PersonaFLState : IHistoryItem {
+        public string Operation;
+        public string Llamador;
+    }
+    public PersonaFLState state;
+
+    //    Aquí meter esto en state para ponerlo en la pila y sacarlo al entrar si hay. Hemos perdido la operación si creamos una persona estando seleccionando.
+
+
+    private DbSet<Persona> lItem;
+    private string mensaje = "";
+    private InventarioDBContext context = new InventarioDBContext();
+
+
+
+    protected override void OnInitialized() {
+
+        this.state = History.Get(typeof(PersonaFLState)) as PersonaFLState;
+        if (this.state == null) {
+            this.state = new PersonaFLState();
+            this.state.Operation = OperationParameter;
+            this.state.Llamador = LlamadorParameter;
+        } else {
+            History.Remove(this.state);
+        }
+        lItem = context.Personas;
+    }
+    protected void Select(Persona item) {
+        History.Add(item);
+        this.NavigationManager.NavigateTo(this.state.Llamador);
+    }
+    protected void Insert() {
+        History.Add(this.state);
+        this.NavigationManager.NavigateTo("PersonaFE/insert/0");
+    }
+    protected void Update(Persona item) {
+
+    }
+    protected void Delete(Persona item) {
+
+    }
+    protected void SalirSinSeleccionar() {
+        this.NavigationManager.NavigateTo(this.state.Llamador);
+    }
+}
