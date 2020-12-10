@@ -1,0 +1,13 @@
+﻿@if ((lMensaje != null) && (lMensaje.Count > 0)) {
+    <ul class="alert-info">
+        @foreach (string mensaje in lMensaje) {
+            <li>@mensaje</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public List<string> lMensaje { get; set; }
+
+}

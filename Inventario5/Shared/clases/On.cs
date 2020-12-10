@@ -35,5 +35,9 @@ namespace Inventario5.Shared.clases {
             sb.Append("</div>");
             return sb.ToString();
         }
+
+        public static string generateNavigateTo(string pagina, string operacion, int id) {
+            return $"{pagina}/{operacion}/{id}";
+        }
     }
 }

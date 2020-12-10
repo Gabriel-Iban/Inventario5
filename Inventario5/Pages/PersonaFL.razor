@@ -8,7 +8,7 @@
 @using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
 
-<h1>Personas</h1>
+<h1>@PLURAL_NAME</h1>
 
 @if (lItem == null) {
     <p><em>Cargando...</em></p>
@@ -16,70 +16,63 @@
     <div class="container">
         <div class="row">
             <div class="col"><h2>Lista</h2></div>
-
             <div class="col-auto">
                 @if (this.state.Operation == On.select) {
                     <button class="btn btn-primary" @onclick="SalirSinSeleccionar">Salir sin seleccionar</button>@:&nbsp;
                 }
-                <button class="btn btn-primary" @onclick="Insert">Nueva Persona</button>
+                <button class="btn btn-primary" @onclick="() => CallOperation(null,On.insert)">Crear @SINGULAR_NAME</button>
             </div>
         </div>
-        <output>
-            @mensaje
-        </output>
+        <div class="row"><div class="col"><output>@mensaje</output></div></div>
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <thead> <tr> <th>Nombre</th> <th>Opciones</th> </tr> </thead>
+                    <tbody>
+                        @foreach (var item in lItem) {
+                            <tr>
+                                <td>@item.Nomb</td>
+                                <td>
+                                    <div style="white-space: nowrap;">
+                                        @if ((this.state.Operation != null) && (this.state.Operation.Equals(On.select))) {
+                                            <button class="btn btn-primary" @onclick="() => CallOperation(item,On.select)">Seleccionar</button>@:&nbsp;
+                                        }
+                                        <button class="btn btn-primary" @onclick="() => CallOperation(item,On.update)">Modificar</button>&nbsp;
+                                        <button class="btn btn-primary" @onclick="() => CallOperation(item,On.delete)">Eliminar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Opciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in lItem) {
-                    <tr>
-                        <td>@item.Nomb</td>
-                        <td>
-                            <div style="white-space: nowrap;">
-                                @if ((this.state.Operation != null) && (this.state.Operation.Equals(On.select))) {
-                                    <button class="btn btn-primary" @onclick="() => Select(item)">Seleccionar</button>@:&nbsp;
-                                }
-                                <button class="btn btn-primary" @onclick="() => Update(item)">Modificar</button>&nbsp;
-                                <button class="btn btn-primary" @onclick="() => Delete(item)">Eliminar</button>
-                            </div>
-
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
 
 }
 
 @code {
+    private const string OPERATION_PAGE = "PersonaFE";
+    private const string SINGULAR_NAME = "Persona";
+    private const string PLURAL_NAME = "Personas";
+
     [Parameter]
     public string OperationParameter { get; set; }
     [Parameter]
     public string LlamadorParameter { get; set; }
 
     public class PersonaFLState : IHistoryItem {
-        public string Operation;
-        public string Llamador;
+        public string Operation; //show o select
+        public string Llamador; // la página a la que volver si seleccionamos
     }
     public PersonaFLState state;
 
-    //    Aquí meter esto en state para ponerlo en la pila y sacarlo al entrar si hay. Hemos perdido la operación si creamos una persona estando seleccionando.
-
-
+    private InventarioDBContext context = new InventarioDBContext();
     private DbSet<Persona> lItem;
     private string mensaje = "";
-    private InventarioDBContext context = new InventarioDBContext();
-
-
 
     protected override void OnInitialized() {
-
         this.state = History.Get(typeof(PersonaFLState)) as PersonaFLState;
         if (this.state == null) {
             this.state = new PersonaFLState();
@@ -90,20 +83,19 @@
         }
         lItem = context.Personas;
     }
-    protected void Select(Persona item) {
-        History.Add(item);
-        this.NavigationManager.NavigateTo(this.state.Llamador);
-    }
-    protected void Insert() {
-        History.Add(this.state);
-        this.NavigationManager.NavigateTo("PersonaFE/insert/0");
-    }
-    protected void Update(Persona item) {
+
+    protected void CallOperation(Persona item, string operation) {
+        if (operation.Equals(On.select)) {//Si es una selección metemos el item en History y vamos al llamador
+            History.Add(item);
+            this.NavigationManager.NavigateTo(this.state.Llamador);
+        } else { //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
+            History.Add(this.state);
+            int itemId = item == null ? 0 : item.Id; // si no hay item por ser una inserción usamos el como itemId un 0
+            this.NavigationManager.NavigateTo(On.generateNavigateTo("PersonaFE", operation, itemId));
+        }
 
     }
-    protected void Delete(Persona item) {
 
-    }
     protected void SalirSinSeleccionar() {
         this.NavigationManager.NavigateTo(this.state.Llamador);
     }

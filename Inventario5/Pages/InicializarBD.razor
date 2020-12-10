@@ -86,7 +86,7 @@ protected decimal insertarDatosGetId(SqlConnection con, string nombreTabla, stri
     }
     return result;
 }
-protected async Task DatosPruebasExec() {
+protected void DatosPruebasExec() {
     SqlConnection con = new System.Data.SqlClient.SqlConnection();
     //con.ConnectionString = "Source=(local);Initial Catalog=\"InventarioDB\";Integrated Security=True";
     con.ConnectionString = "Server=localhost\\SQLEXPRESS;Database=InventarioDB;Trusted_Connection=True;";

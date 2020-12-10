@@ -8,6 +8,7 @@
 @using Inventario5.Models
 @using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
+@using Inventario5.Components;
 
 <h1>Estación de Trabajo</h1>
 
@@ -21,11 +22,11 @@
             </div>
         </div>
 
-        <div>
-            <output class="alert alert-secondary mt-4" role="alert" style="width:100%"><ul>@((MarkupString)mensajes)</ul></output>
-        </div>
+        <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
         <EditForm Model="state.item">
 
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <div class="row">
                 <div class="col">
                     <div class="form-group">
@@ -84,10 +85,10 @@
                     <div class="form-group">
                         <label for="idProcesador" class="control-label">Procesador</label>
                         <InputSelect @bind-Value="this.state.ordenador.IdProcesador" id="idProcesador" class="form-control">
-<!--                            @@foreach (var item in lProcesador) {
-                                <option value="@@item.Id">@@item.Nomb</option>
+                            @foreach (var item in lProcesador) {
+                                <option value="@item.Id">@item.Nomb</option>
                                 }
-    -->
+
                         </InputSelect>
                     </div>
                 </div>
@@ -183,16 +184,12 @@
     }
     public WorkstationFEState state;
 
-    private DbSet<Unidad> lUnidad;
-//    private DbSet<Procesador> lProcesador;
+    private List<Unidad> lUnidad;
+    private List<Procesador> lProcesador;
 
     private InventarioDBContext context = new InventarioDBContext();
 
-    private string mensajes;
-
-    protected void mensaje(string cad) {
-        this.mensajes += "<li>" + cad + "</li>";
-    }
+    private List<string> lMensaje = new List<string>();
 
     protected override void OnInitialized() {
         base.OnInitialized();
@@ -224,8 +221,10 @@
         } else {
             History.Remove(this.state);
         }
-        this.lUnidad = context.Unidads;
-        //this.lProcesador = context.Procesadors;
+
+        this.lUnidad = context.Unidads.AsNoTrackingWithIdentityResolution().ToList(); //El AsNoTrackingWithIdentityResolution evita el error al guardar en Elemento inventariable que no tenía sentido
+        this.lProcesador = context.Procesadors.AsNoTrackingWithIdentityResolution().ToList();
+
         Persona persona = History.Get(typeof(Persona)) as Persona;
         if (persona != null) {
             this.state.elementoinventariable.IdPersona = persona.Id;
@@ -269,12 +268,7 @@
                 break;
 
             case On.update:
-                try {
-                    context.ElementoInventariables.Update(this.state.elementoinventariable);
-                }catch(Exception ex) {
-                    string aux = ex.Message;
-                    throw;
-                }
+                context.ElementoInventariables.Update(this.state.elementoinventariable);
                 context.Ordenadors.Update(this.state.ordenador);
                 context.Workstations.Update(state.item);
                 break;
@@ -287,7 +281,16 @@
             default:
                 throw new Exception("Operación no considerada");
         }
-        var changesNumber = context.SaveChanges();
+        int changesNumber = 0;
+        try {
+            changesNumber = context.SaveChanges();
+        } catch (Exception ex) {
+            this.lMensaje.Add(ex.Message);
+            if (ex.InnerException != null) {
+                this.lMensaje.Add(ex.InnerException.Message);
+            }
+            changesNumber = 0;
+        }
         if (changesNumber > 0) {
             NavigationManager.NavigateTo("WorkstationFL");
         }

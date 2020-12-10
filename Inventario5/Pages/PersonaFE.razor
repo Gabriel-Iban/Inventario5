@@ -7,6 +7,7 @@
 @using Inventario5.Models
 @using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
+@using Inventario5.Components;
 
 <h1>Persona</h1>
 
@@ -14,12 +15,9 @@
     <p><em>Cargando...</em></p>
 } else {
     <div class="container">
-        <div class="row">
-            <div class="col">
-                <h2>@OperationText</h2>
-            </div>
-        </div>
-        <EditForm Model="item">
+        <div class="row"> <div class="col"> <h2>@OperationText</h2> </div> </div>
+        <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
+        <EditForm Model="item" disabled="true">
             <div class="row">
                 <div class="col">
                     <div class="form-group">
@@ -48,7 +46,7 @@
 
     private string OperationText;
 
-
+    private List<string> lMensaje = new List<string>();
 
     private Persona item;
     private InventarioDBContext context = new InventarioDBContext();
@@ -68,8 +66,10 @@
         }
     }
     protected void MakeOperation() {
+        lMensaje.Clear();
         switch (Operation) {
             case On.insert:
+
                 context.Personas.Add(item);
                 break;
 
@@ -83,7 +83,16 @@
             default:
                 throw new Exception("Operación no considerada");
         }
-        var changesNumber = context.SaveChanges();
+        int changesNumber = 0;
+        try {
+            changesNumber = context.SaveChanges();
+        } catch (Exception ex) {
+            this.lMensaje.Add(ex.Message);
+            if (ex.InnerException != null) {
+                this.lMensaje.Add(ex.InnerException.Message);
+            }
+            changesNumber = 0;
+        }
         if (changesNumber > 0) {
             NavigationManager.NavigateTo("PersonaFL");
         }
