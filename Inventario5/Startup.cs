@@ -28,8 +28,9 @@ namespace Inventario5 {
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>(); //***borrar al final
+            string aux = Configuration.GetConnectionString("AppConnection");
             services.AddDbContext<InventarioDBContext>(options =>
-                 options.UseSqlServer(Configuration.GetConnectionString("AppConnection")));
+                 options.UseSqlServer(aux));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddScoped<History>();

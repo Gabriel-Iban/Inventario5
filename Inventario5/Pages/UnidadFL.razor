@@ -1,5 +1,5 @@
-﻿@page "/ProcesadorFL"
-@page "/ProcesadorFL/{operationparameter}/{llamadorparameter}"
+﻿@page "/UnidadFL"
+@page "/UnidadFL/{operationparameter}/{llamadorparameter}"
 
 @inject NavigationManager NavigationManager
 @inject History History;
@@ -54,45 +54,45 @@
 }
 
 @code {
-    private const string OPERATION_PAGE = "ProcesadorFE";
-    private const string SINGULAR_NAME = "Procesador";
-    private const string PLURAL_NAME = "Procesadores";
+    private const string OPERATION_PAGE = "UnidadFE";
+    private const string SINGULAR_NAME = "Unidad";
+    private const string PLURAL_NAME = "Unidades";
 
     [Parameter]
     public string OperationParameter { get; set; }
     [Parameter]
     public string LlamadorParameter { get; set; }
 
-    public class ProcesadorFLState : IHistoryItem {
+    public class UnidadFLState : IHistoryItem {
         public string Operation; //show o select
         public string Llamador; // la página a la que volver si seleccionamos
     }
-    public ProcesadorFLState state;
+    public UnidadFLState state;
 
     private InventarioDBContext context = new InventarioDBContext();
-    private DbSet<Procesador> lItem;
+    private DbSet<Unidad> lItem;
     private List<string> lMensaje = new List<string>();
 
     protected override void OnInitialized() {
-        this.state = History.Get(typeof(ProcesadorFLState)) as ProcesadorFLState;
+        this.state = History.Get(typeof(UnidadFLState)) as UnidadFLState;
         if (this.state == null) {
-            this.state = new ProcesadorFLState();
+            this.state = new UnidadFLState();
             this.state.Operation = OperationParameter;
             this.state.Llamador = LlamadorParameter;
         } else {
             History.Remove(this.state);
         }
-        lItem = context.Procesadors;
+        lItem = context.Unidads;
     }
 
-    protected void CallOperation(Procesador item, string operation) {
+    protected void CallOperation(Unidad item, string operation) {
         if (operation.Equals(On.select)) {//Si es una selección metemos el item en History y vamos al llamador
             History.Add(item);
             this.NavigationManager.NavigateTo(this.state.Llamador);
         } else { //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
             History.Add(this.state);
             int itemId = item == null ? 0 : item.Id; // si no hay item por ser una inserción usamos el como itemId un 0
-            this.NavigationManager.NavigateTo(On.generateNavigateTo("ProcesadorFE", operation, itemId));
+            this.NavigationManager.NavigateTo(On.generateNavigateTo("UnidadFE", operation, itemId));
         }
 
     }

@@ -1,5 +1,5 @@
-﻿@page "/WorkstationFE"
-@page "/WorkstationFE/{operationparameter}/{idparameter:int}"
+﻿@page "/PortatilFE"
+@page "/PortatilFE/{operationparameter}/{idparameter:int}"
 
 @inject NavigationManager NavigationManager
 @inject History History
@@ -9,7 +9,7 @@
 @using Inventario5.Shared.clases;
 @using Inventario5.Components;
 
-<h1>Estación de Trabajo</h1>
+<h1>Portátil</h1>
 
 @if (this.state.item == null) {
     <p><em>Cargando...</em></p>
@@ -99,6 +99,19 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
+                        <label for="tamanoPantalla" class="control-label">Tamaño de la pantalla (pulgadas)</label>
+                        <InputNumber @bind-Value="this.state.item.TamanoPantalla" id="tamanoPantalla" class="form-control"/>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        &nbsp;
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
                         <label for="idPersona" class="control-label">Persona asignada</label>
                         <div class="input-group mb-3">
                             <InputText @bind-Value="this.state.persona.Nomb" class="form-control" />
@@ -148,7 +161,7 @@
                     <button class="btn btn-primary" @onclick="MakeOperation">@state.OperationText</button>
                 </div>
                 <div class="col-6 text-center">
-                    <a class="btn btn-secondary" href="WorkstationFL">Cancelar</a>
+                    <a class="btn btn-secondary" href="PortatilFL">Cancelar</a>
                 </div>
             </div>
         </EditForm>
@@ -162,13 +175,13 @@
     [Parameter]
     public int IdParameter { get; set; }
 
-    public class WorkstationFEState : IHistoryItem {
+    public class PortatilFEState : IHistoryItem {
         public string Operation;
         public int Id;
 
         public string OperationText;
 
-        public Workstation item;
+        public Portatil item;
         public Ordenador ordenador;
         public ElementoInventariable elementoinventariable;
         public Persona persona = new Persona();
@@ -176,7 +189,7 @@
         public Marcaymodelo marcaymodelo = new Marcaymodelo();
 
     }
-    public WorkstationFEState state;
+    public PortatilFEState state;
 
     private List<Unidad> lUnidad;
     private List<Procesador> lProcesador;
@@ -187,23 +200,23 @@
 
     protected override void OnInitialized() {
         base.OnInitialized();
-        this.state = History.Get(typeof(WorkstationFEState)) as WorkstationFEState;
+        this.state = History.Get(typeof(PortatilFEState)) as PortatilFEState;
         if (this.state == null) {
-            this.state = new WorkstationFEState();
+            this.state = new PortatilFEState();
             this.state.Operation = OperationParameter;
             this.state.Id = IdParameter;
             this.state.OperationText = On.getText(this.state.Operation);
             switch (this.state.Operation) {
                 case On.insert:
-                    this.state.item = new Workstation();
+                    this.state.item = new Portatil();
                     this.state.ordenador = new Ordenador();
                     this.state.elementoinventariable = new ElementoInventariable();
                     this.state.elementoinventariable.Ordenador = this.state.ordenador;
-                    this.state.ordenador.Workstation = this.state.item;
+                    this.state.ordenador.Portatil = this.state.item;
                     break;
                 case On.update:
                 case On.delete:
-                    this.state.item = context.Workstations.Find(this.state.Id);
+                    this.state.item = context.Portatils.Find(this.state.Id);
                     this.state.ordenador = context.Ordenadors.Find(this.state.Id);
                     this.state.elementoinventariable = context.ElementoInventariables.Find(this.state.Id);
                     this.CargarElementosAuxiliares();
@@ -259,17 +272,17 @@
             case On.insert:
                 context.ElementoInventariables.Add(this.state.elementoinventariable);
                 context.Ordenadors.Add(this.state.ordenador);
-                context.Workstations.Add(this.state.item);
+                context.Portatils.Add(this.state.item);
                 break;
 
             case On.update:
                 context.ElementoInventariables.Update(this.state.elementoinventariable);
                 context.Ordenadors.Update(this.state.ordenador);
-                context.Workstations.Update(state.item);
+                context.Portatils.Update(state.item);
                 break;
 
             case On.delete:
-                context.Workstations.Remove(this.state.item);
+                context.Portatils.Remove(this.state.item);
                 context.Ordenadors.Remove(this.state.ordenador);
                 context.ElementoInventariables.Remove(this.state.elementoinventariable);
                 break;
@@ -287,25 +300,25 @@
             changesNumber = 0;
         }
         if (changesNumber > 0) {
-            NavigationManager.NavigateTo("WorkstationFL");
+            NavigationManager.NavigateTo("PortatilFL");
         }
 
     }
     private void btnPersonaClick() {
         //Añadir estado al history
         this.History.Add(this.state);
-        NavigationManager.NavigateTo("PersonaFL/" + On.select + "/" + "WorkstationFE");
+        NavigationManager.NavigateTo("PersonaFL/" + On.select + "/" + "PortatilFE");
     }
 
     private void btnUbicacionClick() {
         //Añadir estado al history
         this.History.Add(this.state);
-        NavigationManager.NavigateTo("UbicacionFL/" + On.select + "/" + "WorkstationFE");
+        NavigationManager.NavigateTo("UbicacionFL/" + On.select + "/" + "PortatilFE");
     }
 
     private void btnMarcaymodeloClick() {
         //Añadir estado al history
         this.History.Add(this.state);
-        NavigationManager.NavigateTo("MarcaymodeloFL/" + On.select + "/" + "WorkstationFE");
+        NavigationManager.NavigateTo("MarcaymodeloFL/" + On.select + "/" + "PortatilFE");
     }
 }

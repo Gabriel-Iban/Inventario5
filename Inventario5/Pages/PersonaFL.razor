@@ -7,6 +7,7 @@
 @using Inventario5.Models
 @using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
+@using Inventario5.Components;
 
 <h1>@PLURAL_NAME</h1>
 
@@ -23,7 +24,7 @@
                 <button class="btn btn-primary" @onclick="() => CallOperation(null,On.insert)">Crear @SINGULAR_NAME</button>
             </div>
         </div>
-        <div class="row"><div class="col"><output>@mensaje</output></div></div>
+        <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
         <div class="row">
             <div class="col">
                 <table class="table">
@@ -70,7 +71,7 @@
 
     private InventarioDBContext context = new InventarioDBContext();
     private DbSet<Persona> lItem;
-    private string mensaje = "";
+    private List<string> lMensaje = new List<string>();
 
     protected override void OnInitialized() {
         this.state = History.Get(typeof(PersonaFLState)) as PersonaFLState;

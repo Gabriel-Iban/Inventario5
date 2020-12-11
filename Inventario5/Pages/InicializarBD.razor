@@ -111,10 +111,19 @@ protected void DatosPruebasExec() {
     this.insertarDatos(con, "persona", new string[] { comillas("Gabriel Ibán Cruz Fraguela") });
     this.insertarDatos(con, "persona", new string[] { comillas("Pablo Vázquez Fernández") });
 
-    int idElementoInventariable = (Int32)this.insertarDatosGetId(con, "elementoInventariable", new string[] { comillas("PTKJ3204"), comillas("Nada relevante") ,"1","1","1" } );
-    
+        //Workstation
+    int idElementoInventariable = (Int32)this.insertarDatosGetId(con, "elementoInventariable", new string[] { comillas("WS00004"), comillas("Nada relevante") ,"1","1","1" } );
     this.insertarDatos(con, "ordenador", new string[] {idElementoInventariable.ToString(), comillas("NS34567654XD"), "16", "1", "1","1","1","1"  });
     this.insertarDatos(con, "workstation", new string[] {idElementoInventariable.ToString()});
+
+    //Portatil
+    idElementoInventariable = (Int32)this.insertarDatosGetId(con, "elementoInventariable", new string[] { comillas("POR000001"), comillas("Portátil del comercial") ,"2","2","2" } );
+    this.insertarDatos(con, "ordenador", new string[] {idElementoInventariable.ToString(), comillas("CSH456345CE"), "8", "1", "250","2","2","3.2"  });
+    this.insertarDatos(con, "portatil", new string[] {idElementoInventariable.ToString(),"14"});
+
+
+
+
 
     /*
     this.insertarDatos(con, )

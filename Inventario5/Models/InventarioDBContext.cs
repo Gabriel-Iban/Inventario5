@@ -43,6 +43,9 @@ namespace Inventario5.Models
             {
                 entity.ToTable("elementoInventariable");
 
+                entity.HasIndex(e => e.Codigo, "indexElementoInventariableCodigo")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Codigo)
@@ -116,6 +119,9 @@ namespace Inventario5.Models
             modelBuilder.Entity<Ordenador>(entity =>
             {
                 entity.ToTable("ordenador");
+
+                entity.HasIndex(e => e.NumeroSerie, "indexOrdenadorNumeroSerie")
+                    .IsUnique();
 
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()

@@ -1,5 +1,5 @@
-﻿@page "/WorkstationFL"
-@page "/WorkstationFL/{operation}/{llamador}"
+﻿@page "/PortatilFL"
+@page "/PortatilFL/{operation}/{llamador}"
 
 @inject NavigationManager NavigationManager
 
@@ -17,7 +17,7 @@
     <div class="container">
         <div class="row">
             <div class="col"><h2>Lista</h2></div>
-            <div class="col-auto"><NavLink class="btn btn-primary" href="WorkstationFE/insert/0">Crear @SINGULAR_NAME</NavLink></div>
+            <div class="col-auto"><NavLink class="btn btn-primary" href="PortatilFE/insert/0">Crear @SINGULAR_NAME</NavLink></div>
         </div>
         <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
         
@@ -42,7 +42,7 @@
                         <td>@textoUbicacionNomb</td>
                         <td>@textoMarcaymodeloNomb</td>
                         <td>
-                            @((MarkupString)On.generateButtons("Workstation",Operation,item.Id))
+                            @((MarkupString)On.generateButtons("Portatil",Operation,item.Id))
                         </td>
                     </tr>
                 }
@@ -54,17 +54,17 @@
 
 @code {
 
-    private const string OPERATION_PAGE = "WorkstationFE";
-    private const string SINGULAR_NAME= "Estación de Trabajo";
-    private const string PLURAL_NAME = "Estaciones de Trabajo";
+    private const string OPERATION_PAGE = "PortatilFE";
+    private const string SINGULAR_NAME= "Portátil";
+    private const string PLURAL_NAME = "Portátiles";
 
     [Parameter]
     public string Operation { get; set; }
     [Parameter]
     public string Llamador { get; set; }
 
-    private Workstation actual; //Almacena el elemento actual para no ser necesario el pasarlo como parámetro al pedirlo en otras funciones
-    private List<Workstation> lItem; //Lista de elementos en los que se basa el formulario de lista.
+    private Portatil actual; //Almacena el elemento actual para no ser necesario el pasarlo como parámetro al pedirlo en otras funciones
+    private List<Portatil> lItem; //Lista de elementos en los que se basa el formulario de lista.
     private Ordenador Ordenador => actual.IdNavigation; //Utilidad para obtener el ordenador
     private ElementoInventariable ElementoInventariable => actual.IdNavigation.IdNavigation;//Utilidad para obtener el ElementoInventariable
     private string textoElementoInventariableCodigo => ElementoInventariable.Codigo ?? "Código no definido";
@@ -78,7 +78,7 @@
     private InventarioDBContext context = new InventarioDBContext();
 
     protected override void OnInitialized() {
-        this.lItem = context.Workstations
+        this.lItem = context.Portatils
             .Include(x => x.IdNavigation)
                 .ThenInclude(x => x.IdNavigation)
                     .ThenInclude(p => p.IdPersonaNavigation)

@@ -1,5 +1,5 @@
-﻿@page "/PersonaFE"
-@page "/PersonaFE/{operation}/{id:int}"
+﻿@page "/UnidadFE"
+@page "/UnidadFE/{operation}/{id:int}"
 
 @inject NavigationManager NavigationManager
 
@@ -7,7 +7,7 @@
 @using Inventario5.Shared.clases;
 @using Inventario5.Components;
 
-<h1>Persona</h1>
+<h1>Unidad</h1>
 
 @if (item == null) {
     <p><em>Cargando...</em></p>
@@ -29,7 +29,7 @@
                     <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
                 </div>
                 <div class="col">
-                    <a class="btn btn-secondary" href="PersonaFL">Cancelar</a>
+                    <a class="btn btn-secondary" href="UnidadFL">Cancelar</a>
                 </div>
             </div>
         </EditForm>
@@ -46,18 +46,18 @@
 
     private List<string> lMensaje = new List<string>();
 
-    private Persona item;
+    private Unidad item;
     private InventarioDBContext context = new InventarioDBContext();
 
     protected override void OnInitialized() {
         this.OperationText = On.getText(Operation);
         switch (Operation) {
             case On.insert:
-                item = new Persona();
+                item = new Unidad();
                 break;
             case On.update:
             case On.delete:
-                item = context.Personas.Find(Id);
+                item = context.Unidads.Find(Convert.ToByte(Id));
                 break;
             default:
                 throw new Exception("Operación no considerada");
@@ -67,15 +67,15 @@
         lMensaje.Clear();
         switch (Operation) {
             case On.insert:
-                context.Personas.Add(item);
+                context.Unidads.Add(item);
                 break;
 
             case On.update:
-                context.Personas.Update(item);
+                context.Unidads.Update(item);
                 break;
 
             case On.delete:
-                context.Personas.Remove(item);
+                context.Unidads.Remove(item);
                 break;
             default:
                 throw new Exception("Operación no considerada");
@@ -91,7 +91,7 @@
             changesNumber = 0;
         }
         if (changesNumber > 0) {
-            NavigationManager.NavigateTo("PersonaFL");
+            NavigationManager.NavigateTo("UnidadFL");
         }
 
     }
