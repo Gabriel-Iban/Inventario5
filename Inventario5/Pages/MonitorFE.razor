@@ -1,5 +1,5 @@
-﻿@page "/WorkstationFE"
-@page "/WorkstationFE/{operationparameter}/{idparameter:int}"
+﻿@page "/MonitorFE"
+@page "/MonitorFE/{operationparameter}/{idparameter:int}"
 
 @inject NavigationManager NavigationManager
 @inject History History
@@ -9,7 +9,7 @@
 @using Inventario5.Shared.clases;
 @using Inventario5.Components;
 
-<h1>Estación de Trabajo</h1>
+<h1>Monitor</h1>
 
 @if (this.state.item == null) {
     <p><em>Cargando...</em></p>
@@ -35,67 +35,12 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="numeroserie" class="control-label">Número de Serie</label>
-                        <InputText @bind-Value="this.state.ordenador.NumeroSerie" id="numeroserie" class="form-control" />
+                        <label for="tamanoPantalla" class="control-label">Código</label>
+                        <InputNumber @bind-Value="this.state.item.TamanoPantalla" id="tamanoPantalla" class="form-control" />
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="memoria" class="control-label">Memoria</label>
-                        <InputNumber @bind-Value="this.state.ordenador.Memoria" id="memoria" class="form-control" />
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label for="unidadMemoria" class="control-label">Unidad</label>
-                        <InputSelect @bind-Value="this.state.ordenador.UnidadMemoria" id="unidadMemoria" class="form-control">
-                            @foreach (var item in lUnidad) {
-                                <option value="@item.Id">@item.Nomb</option>
-                                }
-                        </InputSelect>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="discoduro" class="control-label">Disco Duro</label>
-                        <InputNumber @bind-Value="this.state.ordenador.DiscoDuro" id="discoduro" class="form-control" />
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label for="unidadDiscoDuro" class="control-label">Unidad</label>
-                        <InputSelect @bind-Value="this.state.ordenador.UnidadDiscoDuro" id="unidadDiscoDuro" class="form-control">
-                            @foreach (var item in lUnidad) {
-                                <option value="@item.Id">@item.Nomb</option>
-                                }
-                        </InputSelect>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="idProcesador" class="control-label">Procesador</label>
-                        <InputSelect @bind-Value="this.state.ordenador.IdProcesador" id="idProcesador" class="form-control">
-                            @foreach (var item in lProcesador) {
-                                <option value="@item.Id">@item.Nomb</option>
-                                }
-
-                        </InputSelect>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label for="velocidadProcesador" class="control-label">Velocidad Procesador</label>
-                        <InputNumber @bind-Value="this.state.ordenador.VelocidadProcesador" id="velocidadProcesador" class="form-control" />
-                    </div>
-                </div>
-            </div>
             <div class="row">
                 <div class="col">
                     <div class="form-group">
@@ -129,7 +74,7 @@
                         <div class="input-group mb-3">
                             <InputText @bind-Value="this.state.marcaymodelo.Nomb" class="form-control" />
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnMarcaymodeloClick">Buscar</span>
+                                <span class="input-group-text btn btn-primary" id="basic-addon2"@onclick="btnMarcaymodeloClick">Buscar</span>
                             </div>
                         </div>
                     </div>
@@ -144,17 +89,11 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
-<!--                   <MonitoresAnadirQuitar Titulo="Monitores asignados a esta Estación de Trabajo" lItem="this.state.lMonitor.ToList()" Anadir="MonitorAnadir" Quitar="MonitorQuitar" />--> 
-                   <MonitoresAnadirQuitar Titulo="Monitores asignados a esta Estación de Trabajo" lItem="this.state.item.Monitors.ToList()" Anadir="MonitorAnadir" Quitar="MonitorQuitar" />
-                </div>
-            </div>
-            <div class="row">
                 <div class="col-6 text-center">
                     <button class="btn btn-primary" @onclick="MakeOperation">@state.OperationText</button>
                 </div>
                 <div class="col-6 text-center">
-                    <a class="btn btn-secondary" href="WorkstationFL">Cancelar</a>
+                    <a class="btn btn-secondary" href="MonitorFL">Cancelar</a>
                 </div>
             </div>
         </EditForm>
@@ -168,55 +107,42 @@
     [Parameter]
     public int IdParameter { get; set; }
 
-    public class WorkstationFEState : IHistoryItem {
+    public class MonitorFEState : IHistoryItem {
         public string Operation;
         public int Id;
 
         public string OperationText;
 
-        public Workstation item;
-        public Ordenador ordenador;
+        public Monitor item;
         public ElementoInventariable elementoinventariable;
         public Persona persona = new Persona();
         public Ubicacion ubicacion = new Ubicacion();
         public Marcaymodelo marcaymodelo = new Marcaymodelo();
-        //public List<Monitor> lMonitor;
 
     }
-    public WorkstationFEState state;
-
-    private Monitor monitorActual;//Se utiliza para facilitar
-
-    private List<Unidad> lUnidad;
-    private List<Procesador> lProcesador;
-
+    public MonitorFEState state;
 
     private InventarioDBContext context = new InventarioDBContext();
 
     private List<string> lMensaje = new List<string>();
 
     protected override void OnInitialized() {
-        context.ChangeTracker.AutoDetectChangesEnabled = false;
-        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
         base.OnInitialized();
-        this.state = History.Get(typeof(WorkstationFEState)) as WorkstationFEState;
+        this.state = History.Get(typeof(MonitorFEState)) as MonitorFEState;
         if (this.state == null) {
-            this.state = new WorkstationFEState();
+            this.state = new MonitorFEState();
             this.state.Operation = OperationParameter;
             this.state.Id = IdParameter;
             this.state.OperationText = On.getText(this.state.Operation);
             switch (this.state.Operation) {
                 case On.insert:
-                    this.state.item = new Workstation();
-                    this.state.ordenador = new Ordenador();
+                    this.state.item = new Monitor();
                     this.state.elementoinventariable = new ElementoInventariable();
-                    this.state.elementoinventariable.Ordenador = this.state.ordenador;
-                    this.state.ordenador.Workstation = this.state.item;
+                    this.state.elementoinventariable.Monitor= this.state.item;
                     break;
                 case On.update:
                 case On.delete:
-                    this.state.item = context.Workstations.Find(this.state.Id);
-                    this.state.ordenador = context.Ordenadors.Find(this.state.Id);
+                    this.state.item = context.Monitors.Find(this.state.Id);
                     this.state.elementoinventariable = context.ElementoInventariables.Find(this.state.Id);
                     this.CargarElementosAuxiliares();
                     break;
@@ -227,9 +153,6 @@
         } else {
             History.Remove(this.state);
         }
-
-        this.lUnidad = context.Unidads.AsNoTrackingWithIdentityResolution().ToList(); 
-        this.lProcesador = context.Procesadors.AsNoTrackingWithIdentityResolution().ToList();
 
         Persona persona = History.Get(typeof(Persona)) as Persona;
         if (persona != null) {
@@ -252,12 +175,6 @@
             this.state.marcaymodelo = marcaymodelo;
             History.Remove(this.state.marcaymodelo);
         }
-        Monitor monitor = History.Get(typeof(Monitor)) as Monitor;
-        if (monitor != null) {
-            this.state.item.Monitors.Add(monitor);
-            History.Remove(monitor);
-        }
-
     }
     protected void CargarElementosAuxiliares() {
 
@@ -270,28 +187,22 @@
         if (this.state.elementoinventariable.IdMarcaYmodelo != null) {
             this.state.marcaymodelo = context.Marcaymodelos.Find(this.state.elementoinventariable.IdMarcaYmodelo);
         }
-        if(this.state.item.)
-        //this.state.lMonitor = this.context.Monitors.Where(x => x.IdWorkstation == this.state.item.Id).ToList();
-        this.context.Monitors.Where(x => x.IdWorkstation == this.state.item.Id);
     }
     protected void MakeOperation() {
         this.lMensaje.Clear();
         switch (this.state.Operation) {
             case On.insert:
                 context.ElementoInventariables.Add(this.state.elementoinventariable);
-                context.Ordenadors.Add(this.state.ordenador);
-                context.Workstations.Add(this.state.item);
+                context.Monitors.Add(this.state.item);
                 break;
 
             case On.update:
                 context.ElementoInventariables.Update(this.state.elementoinventariable);
-                context.Ordenadors.Update(this.state.ordenador);
-                context.Workstations.Update(state.item);
+                context.Monitors.Update(state.item);
                 break;
 
             case On.delete:
-                context.Workstations.Remove(this.state.item);
-                context.Ordenadors.Remove(this.state.ordenador);
+                context.Monitors.Remove(this.state.item);
                 context.ElementoInventariables.Remove(this.state.elementoinventariable);
                 break;
             default:
@@ -308,32 +219,25 @@
             changesNumber = 0;
         }
         if (changesNumber > 0) {
-            NavigationManager.NavigateTo("WorkstationFL");
+            NavigationManager.NavigateTo("MonitorFL");
         }
 
     }
     private void btnPersonaClick() {
         //Añadir estado al history
         this.History.Add(this.state);
-        NavigationManager.NavigateTo("PersonaFL/" + On.select + "/" + "WorkstationFE");
+        NavigationManager.NavigateTo("PersonaFL/" + On.select + "/" + "MonitorFE");
     }
 
     private void btnUbicacionClick() {
         //Añadir estado al history
         this.History.Add(this.state);
-        NavigationManager.NavigateTo("UbicacionFL/" + On.select + "/" + "WorkstationFE");
+        NavigationManager.NavigateTo("UbicacionFL/" + On.select + "/" + "MonitorFE");
     }
 
     private void btnMarcaymodeloClick() {
         //Añadir estado al history
         this.History.Add(this.state);
-        NavigationManager.NavigateTo("MarcaymodeloFL/" + On.select + "/" + "WorkstationFE");
-    }
-    public void MonitorAnadir() {
-        this.History.Add(this.state);
-        NavigationManager.NavigateTo("MonitorFL/" + On.select + "/" + "WorkstationFE");
-    }
-    public void MonitorQuitar(Monitor item) {
-        this.state.item.Monitors.Remove(item);
+        NavigationManager.NavigateTo("MarcaymodeloFL/" + On.select + "/" + "MonitorFE");
     }
 }

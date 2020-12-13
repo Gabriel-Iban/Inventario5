@@ -1,0 +1,128 @@
+﻿@page "/MonitorFL"
+@page "/MonitorFL/{operationparameter}/{llamadorparameter}"
+
+@inject NavigationManager NavigationManager
+@inject History History;
+
+@using Inventario5.Models
+@using Microsoft.EntityFrameworkCore;
+@using Inventario5.Shared.clases;
+@using Inventario5.Components;
+
+<h1>@PLURAL_NAME</h1>
+
+
+@if (lItem == null) {
+    <p><em>Cargando...</em></p>
+} else {
+    <div class="container">
+        <div class="row">
+            <div class="col"><h2>Lista</h2></div>
+            <div class="col-auto">
+                @if (this.state.Operation == On.select) {
+                    <button class="btn btn-primary" @onclick="SalirSinSeleccionar">Salir sin seleccionar</button>@:&nbsp;
+                }
+                <button class="btn btn-primary" @onclick="() => CallOperation(null,On.insert)">Crear @SINGULAR_NAME</button>
+            </div>
+        </div>
+        <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Tamaño pantalla</th>
+                    <th>Persona</th>
+                    <th>Ubicación</th>
+                    <th>Marca y Modelo</th>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in lItem) {
+                    actual = item;
+                    <tr>
+                        <td>@textoElementoInventariableCodigo</td>
+                        <td>@textoTamanoPantalla</td>
+                        <td>@textoPersonaNomb</td>
+                        <td>@textoUbicacionNomb</td>
+                        <td>@textoMarcaymodeloNomb</td>
+                        <td>
+                            <div style="white-space: nowrap;">
+                                @if ((this.state.Operation != null) && (this.state.Operation.Equals(On.select))) {
+                                    <button class="btn btn-primary" @onclick="() => CallOperation(item,On.select)">Seleccionar</button>@:&nbsp;
+                                }
+                                <button class="btn btn-primary" @onclick="() => CallOperation(item,On.update)">Modificar</button>&nbsp;
+                                <button class="btn btn-primary" @onclick="() => CallOperation(item,On.delete)">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+
+@code {
+
+    private const string OPERATION_PAGE = "MonitorFE";
+    private const string SINGULAR_NAME = "Monitor";
+    private const string PLURAL_NAME = "Monitores";
+
+    [Parameter]
+    public string OperationParameter { get; set; }
+    [Parameter]
+    public string LlamadorParameter { get; set; }
+
+    public class MonitorFLState : IHistoryItem {
+        public string Operation; //show o select
+        public string Llamador; // la página a la que volver si seleccionamos
+    }
+    public MonitorFLState state;
+
+    private InventarioDBContext context = new InventarioDBContext();
+    private List<string> lMensaje = new List<string>();
+
+    private List<Monitor> lItem;
+    private Monitor actual; //Almacena el elemento actual para no ser necesario el pasarlo como parámetro al pedirlo en otras funciones
+    private ElementoInventariable ElementoInventariable => actual.IdNavigation;//Utilidad para obtener el ElementoInventariable
+    private string textoElementoInventariableCodigo => ElementoInventariable.Codigo ?? "Código no definido";
+    private string textoTamanoPantalla => actual.TamanoPantalla != null ? actual.TamanoPantalla.ToString() : "no definido";
+    private string textoPersonaNomb => ElementoInventariable.IdPersonaNavigation != null ? ElementoInventariable.IdPersonaNavigation.Nomb : "Persona no definida";
+    private string textoUbicacionNomb => ElementoInventariable.IdUbicacionNavigation != null ? ElementoInventariable.IdUbicacionNavigation.Nomb : "Ubicación no definida";
+    private string textoMarcaymodeloNomb => ElementoInventariable.IdMarcaYmodeloNavigation != null ? ElementoInventariable.IdMarcaYmodeloNavigation.Nomb : "Marca y modelo no definidos";
+
+    protected override void OnInitialized() {
+        this.state = History.Get(typeof(MonitorFLState)) as MonitorFLState;
+        if (this.state == null) {
+            this.state = new MonitorFLState();
+            this.state.Operation = OperationParameter;
+            this.state.Llamador = LlamadorParameter;
+        } else {
+            History.Remove(this.state);
+        }
+        this.lItem = context.Monitors
+            .Include(x => x.IdNavigation)
+                    .ThenInclude(p => p.IdPersonaNavigation)
+            .Include(x => x.IdNavigation)
+                    .ThenInclude(u => u.IdUbicacionNavigation)
+            .Include(x => x.IdNavigation)
+                    .ThenInclude(m => m.IdMarcaYmodeloNavigation)
+            .ToList();
+    }
+
+    protected void CallOperation(Monitor item, string operation) {
+        if (operation.Equals(On.select)) {//Si es una selección metemos el item en History y vamos al llamador
+            History.Add(item);
+            this.NavigationManager.NavigateTo(this.state.Llamador);
+        } else { //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
+            History.Add(this.state);
+            int itemId = item == null ? 0 : item.Id; // si no hay item por ser una inserción usamos el como itemId un 0
+            this.NavigationManager.NavigateTo(On.generateNavigateTo("PersonaFE", operation, itemId));
+        }
+    }
+    protected void SalirSinSeleccionar() {
+        this.NavigationManager.NavigateTo(this.state.Llamador);
+    }
+}
