@@ -196,8 +196,6 @@
     private List<string> lMensaje = new List<string>();
 
     protected override void OnInitialized() {
-        context.ChangeTracker.AutoDetectChangesEnabled = false;
-        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTrackingWithIdentityResolution;
         base.OnInitialized();
         this.state = History.Get(typeof(WorkstationFEState)) as WorkstationFEState;
         if (this.state == null) {
@@ -270,7 +268,6 @@
         if (this.state.elementoinventariable.IdMarcaYmodelo != null) {
             this.state.marcaymodelo = context.Marcaymodelos.Find(this.state.elementoinventariable.IdMarcaYmodelo);
         }
-        if(this.state.item.)
         //this.state.lMonitor = this.context.Monitors.Where(x => x.IdWorkstation == this.state.item.Id).ToList();
         this.context.Monitors.Where(x => x.IdWorkstation == this.state.item.Id);
     }

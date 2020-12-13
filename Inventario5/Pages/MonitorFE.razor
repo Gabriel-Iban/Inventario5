@@ -5,7 +5,6 @@
 @inject History History
 
 @using Inventario5.Models
-@using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
 @using Inventario5.Components;
 
@@ -74,7 +73,20 @@
                         <div class="input-group mb-3">
                             <InputText @bind-Value="this.state.marcaymodelo.Nomb" class="form-control" />
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2"@onclick="btnMarcaymodeloClick">Buscar</span>
+                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnMarcaymodeloClick">Buscar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idWorkstation" class="control-label">Estación de Trabajo</label>
+                        <div class="input-group mb-3">
+                            <!-- *** <InputText @bind-Value="this.textoOrdenadorNomb" class="form-control" readonly />-->
+                            <div class="input-group-append">
+                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnWorkstationClick">Buscar</span>
                             </div>
                         </div>
                     </div>
@@ -118,11 +130,29 @@
         public Persona persona = new Persona();
         public Ubicacion ubicacion = new Ubicacion();
         public Marcaymodelo marcaymodelo = new Marcaymodelo();
-
+        public Workstation workstation = new Workstation();
     }
     public MonitorFEState state;
 
     private InventarioDBContext context = new InventarioDBContext();
+
+    public Ordenador ordenador {
+        get {
+            if(this.state.item.IdWorkstation != null) {
+                return context.Ordenadors.Find(this.state.item.IdWorkstation);
+
+            }
+            return null;
+        }
+    }
+    public string textoOrdenadorNomb {
+        get {
+            if (this.ordenador != null) {
+                return this.ordenador.Nomb != null ? this.ordenador.Nomb : "no consta";
+            }
+            return "";
+        }
+    }
 
     private List<string> lMensaje = new List<string>();
 
@@ -138,7 +168,7 @@
                 case On.insert:
                     this.state.item = new Monitor();
                     this.state.elementoinventariable = new ElementoInventariable();
-                    this.state.elementoinventariable.Monitor= this.state.item;
+                    this.state.elementoinventariable.Monitor = this.state.item;
                     break;
                 case On.update:
                 case On.delete:
@@ -174,6 +204,13 @@
             this.state.elementoinventariable.IdMarcaYmodeloNavigation = context.Marcaymodelos.Find(marcaymodelo.Id);
             this.state.marcaymodelo = marcaymodelo;
             History.Remove(this.state.marcaymodelo);
+        }
+        Workstation workstation = History.Get(typeof(Workstation)) as Workstation;
+        if (workstation != null) {
+            this.state.item.IdWorkstation = workstation.Id;
+            this.state.item.IdWorkstationNavigation = context.Workstations.Find(workstation.Id);
+            this.state.workstation = workstation;
+            History.Remove(this.state.workstation);
         }
     }
     protected void CargarElementosAuxiliares() {
@@ -239,5 +276,10 @@
         //Añadir estado al history
         this.History.Add(this.state);
         NavigationManager.NavigateTo("MarcaymodeloFL/" + On.select + "/" + "MonitorFE");
+    }
+    private void btnWorkstationClick() {
+        //Añadir estado al history
+        this.History.Add(this.state);
+        NavigationManager.NavigateTo("WorkstationFL/" + On.select + "/" + "MonitorFE");
     }
 }

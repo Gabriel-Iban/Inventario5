@@ -8,6 +8,7 @@ namespace Inventario5.Models
     public partial class Ordenador
     {
         public int Id { get; set; }
+        public string Nomb { get; set; }
         public string NumeroSerie { get; set; }
         public int? Memoria { get; set; }
         public byte? UnidadMemoria { get; set; }

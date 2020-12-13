@@ -22,6 +22,7 @@ namespace Inventario5.Shared.clases {
             return "Operación Desconocida";
         }
 
+        /*
         public static string generateButtons(string tableName, string operation, int id) {
             StringBuilder sb = new StringBuilder();
             sb.Append("<div style=\"white-space: nowrap;\">");
@@ -35,6 +36,7 @@ namespace Inventario5.Shared.clases {
             sb.Append("</div>");
             return sb.ToString();
         }
+        */
 
         public static string generateNavigateTo(string pagina, string operacion, int id) {
             return $"{pagina}/{operacion}/{id}";

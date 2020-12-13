@@ -1,5 +1,8 @@
 ﻿@page "/PortatilFL"
-@page "/PortatilFL/{operation}/{llamador}"
+@page "/PortatilFL/{operationparameter}/{llamadorparameter}"
+
+@inject NavigationManager NavigationManager
+@inject History History;
 
 @inject NavigationManager NavigationManager
 
@@ -17,7 +20,12 @@
     <div class="container">
         <div class="row">
             <div class="col"><h2>Lista</h2></div>
-            <div class="col-auto"><NavLink class="btn btn-primary" href="PortatilFE/insert/0">Crear @SINGULAR_NAME</NavLink></div>
+            <div class="col-auto">
+                @if (this.state.Operation == On.select) {
+                    <button class="btn btn-primary" @onclick="SalirSinSeleccionar">Salir sin seleccionar</button>@:&nbsp;
+                }
+                <button class="btn btn-primary" @onclick="() => CallOperation(null,On.insert)">Crear @SINGULAR_NAME</button>
+            </div>
         </div>
         <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
         
@@ -42,7 +50,13 @@
                         <td>@textoUbicacionNomb</td>
                         <td>@textoMarcaymodeloNomb</td>
                         <td>
-                            @((MarkupString)On.generateButtons("Portatil",Operation,item.Id))
+                                    <div style="white-space: nowrap;">
+                                        @if ((this.state.Operation != null) && (this.state.Operation.Equals(On.select))) {
+                                            <button class="btn btn-primary" @onclick="() => CallOperation(item,On.select)">Seleccionar</button>@:&nbsp;
+                                        }
+                                        <button class="btn btn-primary" @onclick="() => CallOperation(item,On.update)">Modificar</button>&nbsp;
+                                        <button class="btn btn-primary" @onclick="() => CallOperation(item,On.delete)">Eliminar</button>
+                                    </div>
                         </td>
                     </tr>
                 }
@@ -59,9 +73,15 @@
     private const string PLURAL_NAME = "Portátiles";
 
     [Parameter]
-    public string Operation { get; set; }
+    public string OperationParameter { get; set; }
     [Parameter]
-    public string Llamador { get; set; }
+    public string LlamadorParameter { get; set; }
+
+    public class PortatilFLState : IHistoryItem {
+        public string Operation; //show o select
+        public string Llamador; // la página a la que volver si seleccionamos
+    }
+    public PortatilFLState state;
 
     private Portatil actual; //Almacena el elemento actual para no ser necesario el pasarlo como parámetro al pedirlo en otras funciones
     private List<Portatil> lItem; //Lista de elementos en los que se basa el formulario de lista.
@@ -78,6 +98,14 @@
     private InventarioDBContext context = new InventarioDBContext();
 
     protected override void OnInitialized() {
+        this.state = History.Get(typeof(PortatilFLState)) as PortatilFLState;
+        if (this.state == null) {
+            this.state = new PortatilFLState();
+            this.state.Operation = OperationParameter;
+            this.state.Llamador = LlamadorParameter;
+        } else {
+            History.Remove(this.state);
+        }
         this.lItem = context.Portatils
             .Include(x => x.IdNavigation)
                 .ThenInclude(x => x.IdNavigation)
@@ -89,5 +117,21 @@
                 .ThenInclude(x => x.IdNavigation)
                     .ThenInclude(m => m.IdMarcaYmodeloNavigation)
             .ToList();
+    }
+
+    protected void CallOperation(Portatil item, string operation) {
+        if (operation.Equals(On.select)) {//Si es una selección metemos el item en History y vamos al llamador
+            History.Add(item);
+            this.NavigationManager.NavigateTo(this.state.Llamador);
+        } else { //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
+            History.Add(this.state);
+            int itemId = item == null ? 0 : item.Id; // si no hay item por ser una inserción usamos el como itemId un 0
+            this.NavigationManager.NavigateTo(On.generateNavigateTo("PortatilFE", operation, itemId));
+        }
+
+    }
+
+    protected void SalirSinSeleccionar() {
+        this.NavigationManager.NavigateTo(this.state.Llamador);
     }
 }

@@ -32,8 +32,7 @@ namespace Inventario5.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.EnableSensitiveDataLogging();
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=InventarioDB;Trusted_Connection=True;");
             }
         }
@@ -121,6 +120,9 @@ namespace Inventario5.Models
             {
                 entity.ToTable("ordenador");
 
+                entity.HasIndex(e => e.Nomb, "indexOrdenadorNomb")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.NumeroSerie, "indexOrdenadorNumeroSerie")
                     .IsUnique();
 
@@ -131,6 +133,11 @@ namespace Inventario5.Models
                 entity.Property(e => e.IdProcesador).HasColumnName("idProcesador");
 
                 entity.Property(e => e.Memoria).HasColumnName("memoria");
+
+                entity.Property(e => e.Nomb)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasColumnName("nomb");
 
                 entity.Property(e => e.NumeroSerie)
                     .HasMaxLength(50)

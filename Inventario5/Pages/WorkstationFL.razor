@@ -1,7 +1,8 @@
 ﻿@page "/WorkstationFL"
-@page "/WorkstationFL/{operation}/{llamador}"
+@page "/WorkstationFL/{operationparameter}/{llamadorparameter}"
 
 @inject NavigationManager NavigationManager
+@inject History History;
 
 @using Inventario5.Models
 @using Microsoft.EntityFrameworkCore;
@@ -11,16 +12,21 @@
 <h1>@PLURAL_NAME</h1>
 
 
-@if (lItem == null) {
+@if (this.lItem == null) {
     <p><em>Cargando...</em></p>
 } else {
     <div class="container">
         <div class="row">
             <div class="col"><h2>Lista</h2></div>
-            <div class="col-auto"><NavLink class="btn btn-primary" href="WorkstationFE/insert/0">Crear @SINGULAR_NAME</NavLink></div>
+            <div class="col-auto">
+                @if (this.state.Operation == On.select) {
+                    <button class="btn btn-primary" @onclick="SalirSinSeleccionar">Salir sin seleccionar</button>@:&nbsp;
+                }
+                <button class="btn btn-primary" @onclick="() => CallOperation(null,On.insert)">Crear @SINGULAR_NAME</button>
+            </div>
         </div>
         <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
-        
+
         <table class="table">
             <thead>
                 <tr>
@@ -42,7 +48,13 @@
                         <td>@textoUbicacionNomb</td>
                         <td>@textoMarcaymodeloNomb</td>
                         <td>
-                            @((MarkupString)On.generateButtons("Workstation",Operation,item.Id))
+                            <div style="white-space: nowrap;">
+                                @if ((this.state.Operation != null) && (this.state.Operation.Equals(On.select))) {
+                                    <button class="btn btn-primary" @onclick="() => CallOperation(item,On.select)">Seleccionar</button>@:&nbsp;
+                                }
+                                <button class="btn btn-primary" @onclick="() => CallOperation(item,On.update)">Modificar</button>&nbsp;
+                                <button class="btn btn-primary" @onclick="() => CallOperation(item,On.delete)">Eliminar</button>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -55,16 +67,22 @@
 @code {
 
     private const string OPERATION_PAGE = "WorkstationFE";
-    private const string SINGULAR_NAME= "Estación de Trabajo";
+    private const string SINGULAR_NAME = "Estación de Trabajo";
     private const string PLURAL_NAME = "Estaciones de Trabajo";
 
     [Parameter]
-    public string Operation { get; set; }
+    public string OperationParameter { get; set; }
     [Parameter]
-    public string Llamador { get; set; }
+    public string LlamadorParameter { get; set; }
 
+    public class WorkstationFLState : IHistoryItem {
+        public string Operation; //show o select
+        public string Llamador; // la página a la que volver si seleccionamos
+    }
+    public WorkstationFLState state;
+
+        public List<Workstation> lItem; //Lista de elementos en los que se basa el formulario de lista.
     private Workstation actual; //Almacena el elemento actual para no ser necesario el pasarlo como parámetro al pedirlo en otras funciones
-    private List<Workstation> lItem; //Lista de elementos en los que se basa el formulario de lista.
     private Ordenador Ordenador => actual.IdNavigation; //Utilidad para obtener el ordenador
     private ElementoInventariable ElementoInventariable => actual.IdNavigation.IdNavigation;//Utilidad para obtener el ElementoInventariable
     private string textoElementoInventariableCodigo => ElementoInventariable.Codigo ?? "Código no definido";
@@ -78,6 +96,14 @@
     private InventarioDBContext context = new InventarioDBContext();
 
     protected override void OnInitialized() {
+        this.state = History.Get(typeof(WorkstationFLState)) as WorkstationFLState;
+        if (this.state == null) {
+            this.state = new WorkstationFLState();
+            this.state.Operation = OperationParameter;
+            this.state.Llamador = LlamadorParameter;
+        } else {
+            History.Remove(this.state);
+        }
         this.lItem = context.Workstations
             .Include(x => x.IdNavigation)
                 .ThenInclude(x => x.IdNavigation)
@@ -89,5 +115,21 @@
                 .ThenInclude(x => x.IdNavigation)
                     .ThenInclude(m => m.IdMarcaYmodeloNavigation)
             .ToList();
+    }
+
+    protected void CallOperation(Workstation item, string operation) {
+        if (operation.Equals(On.select)) {//Si es una selección metemos el item en History y vamos al llamador
+            History.Add(item);
+            this.NavigationManager.NavigateTo(this.state.Llamador);
+        } else { //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
+            History.Add(this.state);
+            int itemId = item == null ? 0 : item.Id; // si no hay item por ser una inserción usamos el como itemId un 0
+            this.NavigationManager.NavigateTo(On.generateNavigateTo("WorkstationFE", operation, itemId));
+        }
+
+    }
+
+    protected void SalirSinSeleccionar() {
+        this.NavigationManager.NavigateTo(this.state.Llamador);
     }
 }
