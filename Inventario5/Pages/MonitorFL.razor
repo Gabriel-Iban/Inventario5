@@ -4,6 +4,8 @@
 @inject NavigationManager NavigationManager
 @inject History History;
 
+@inject NavigationManager NavigationManager
+
 @using Inventario5.Models
 @using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
@@ -31,7 +33,8 @@
             <thead>
                 <tr>
                     <th>Código</th>
-                    <th>Tamaño pantalla</th>
+                    <th>Tamaño Pantalla</th>
+                    <th>Nombre Equipo Conectado</th>
                     <th>Persona</th>
                     <th>Ubicación</th>
                     <th>Marca y Modelo</th>
@@ -44,6 +47,7 @@
                     <tr>
                         <td>@textoElementoInventariableCodigo</td>
                         <td>@textoTamanoPantalla</td>
+                        <td>@textoOrdenadorNomb</td>
                         <td>@textoPersonaNomb</td>
                         <td>@textoUbicacionNomb</td>
                         <td>@textoMarcaymodeloNomb</td>
@@ -81,17 +85,40 @@
     }
     public MonitorFLState state;
 
-    private InventarioDBContext context = new InventarioDBContext();
-    private List<string> lMensaje = new List<string>();
-
-    private List<Monitor> lItem;
     private Monitor actual; //Almacena el elemento actual para no ser necesario el pasarlo como parámetro al pedirlo en otras funciones
+    private List<Monitor> lItem; //Lista de elementos en los que se basa el formulario de lista.
+    private Ordenador Ordenador {
+        get {
+            Ordenador result = null;
+            if (actual.IdWorkstation != null) {
+                result = this.context.Ordenadors.Find(actual.IdWorkstation);
+            }
+            return result;
+        }
+    }
+
+
     private ElementoInventariable ElementoInventariable => actual.IdNavigation;//Utilidad para obtener el ElementoInventariable
     private string textoElementoInventariableCodigo => ElementoInventariable.Codigo ?? "Código no definido";
-    private string textoTamanoPantalla => actual.TamanoPantalla != null ? actual.TamanoPantalla.ToString() : "no definido";
+    private string textoTamanoPantalla => actual.TamanoPantalla != null ? actual.TamanoPantalla.ToString(): "Tamaño pantalla no definido";
+    private string textoOrdenadorNomb {
+        get {
+            string result = "Nombre de equipo no definido";
+            if (this.Ordenador != null) {
+                if (Ordenador.Nomb != null) {
+                    result = Ordenador.Nomb;
+                }
+            }
+            return result;
+        }
+    }
     private string textoPersonaNomb => ElementoInventariable.IdPersonaNavigation != null ? ElementoInventariable.IdPersonaNavigation.Nomb : "Persona no definida";
     private string textoUbicacionNomb => ElementoInventariable.IdUbicacionNavigation != null ? ElementoInventariable.IdUbicacionNavigation.Nomb : "Ubicación no definida";
     private string textoMarcaymodeloNomb => ElementoInventariable.IdMarcaYmodeloNavigation != null ? ElementoInventariable.IdMarcaYmodeloNavigation.Nomb : "Marca y modelo no definidos";
+
+
+    private List<string> lMensaje = new List<string>();
+    private InventarioDBContext context = new InventarioDBContext();
 
     protected override void OnInitialized() {
         this.state = History.Get(typeof(MonitorFLState)) as MonitorFLState;
@@ -121,7 +148,9 @@
             int itemId = item == null ? 0 : item.Id; // si no hay item por ser una inserción usamos el como itemId un 0
             this.NavigationManager.NavigateTo(On.generateNavigateTo("MonitorFE", operation, itemId));
         }
+
     }
+
     protected void SalirSinSeleccionar() {
         this.NavigationManager.NavigateTo(this.state.Llamador);
     }

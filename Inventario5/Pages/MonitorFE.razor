@@ -5,6 +5,7 @@
 @inject History History
 
 @using Inventario5.Models
+@using Microsoft.EntityFrameworkCore;
 @using Inventario5.Shared.clases;
 @using Inventario5.Components;
 
@@ -34,20 +35,51 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="tamanoPantalla" class="control-label">Código</label>
+                        <label for="tamanoPantalla" class="control-label">Tamaño de la pantalla (pulgadas)</label>
                         <InputNumber @bind-Value="this.state.item.TamanoPantalla" id="tamanoPantalla" class="form-control" />
                     </div>
                 </div>
+                <div class="col">
+                    <div class="form-group">
+                        &nbsp;
+                    </div>
+                </div>
             </div>
-
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="idPersona" class="control-label">Persona asignada</label>
+                        <label for="resolucionX" class="control-label">Resolución X</label>
+                        <InputNumber @bind-Value="this.state.item.ResolucionX" id="resolucionX" class="form-control" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="resolucionY" class="control-label">Resolución Y</label>
+                        <InputNumber @bind-Value="this.state.item.ResolucionY" id="resolucionY" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idWorkstation" class="control-label grey">Estación de Trabajo asignada</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="this.state.persona.Nomb" class="form-control" />
+                            <label id="idWorkstation" class="form-control readOnly">@this.WorkstationOrdenadorNomb</label>
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnPersonaClick">Buscar</span>
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnWorkstationClick">Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="idPersona" class="control-label grey">Persona asignada</label>
+                        <div class="input-group mb-3">
+                            <label id="idPersona" class="form-control readOnly">@this.PersonaNomb</label>
+                            <div class="input-group-append">
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnPersonaClick">Buscar</button>
                             </div>
                         </div>
                     </div>
@@ -58,9 +90,9 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Ubicación</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="this.state.ubicacion.Nomb" class="form-control" />
+                            <label id="idUbicacion" class="form-control readOnly">@this.UbicacionNomb</label>
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnUbicacionClick">Buscar</span>
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnUbicacionClick">Buscar</button>
                             </div>
                         </div>
                     </div>
@@ -71,22 +103,9 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Marca y Modelo</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="this.state.marcaymodelo.Nomb" class="form-control" />
+                            <label id="idMarcaymodelo" class="form-control readOnly">@this.MarcaymodeloNomb</label>
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnMarcaymodeloClick">Buscar</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label for="idWorkstation" class="control-label">Estación de Trabajo</label>
-                        <div class="input-group mb-3">
-                            <!-- *** <InputText @bind-Value="this.textoOrdenadorNomb" class="form-control" readonly />-->
-                            <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnWorkstationClick">Buscar</span>
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnMarcaymodeloClick">Buscar</button>
                             </div>
                         </div>
                     </div>
@@ -127,32 +146,17 @@
 
         public Monitor item;
         public ElementoInventariable elementoinventariable;
-        public Persona persona = new Persona();
-        public Ubicacion ubicacion = new Ubicacion();
-        public Marcaymodelo marcaymodelo = new Marcaymodelo();
-        public Workstation workstation = new Workstation();
+
     }
     public MonitorFEState state;
 
+    private string WorkstationOrdenadorNomb;
+    private string PersonaNomb;
+    private string UbicacionNomb;
+    private string MarcaymodeloNomb;
+
     private InventarioDBContext context = new InventarioDBContext();
-
-    public Ordenador ordenador {
-        get {
-            if(this.state.item.IdWorkstation != null) {
-                return context.Ordenadors.Find(this.state.item.IdWorkstation);
-
-            }
-            return null;
-        }
-    }
-    public string textoOrdenadorNomb {
-        get {
-            if (this.ordenador != null) {
-                return this.ordenador.Nomb != null ? this.ordenador.Nomb : "no consta";
-            }
-            return "";
-        }
-    }
+    private InventarioDBContext contextLectura = new InventarioDBContext();
 
     private List<string> lMensaje = new List<string>();
 
@@ -168,13 +172,12 @@
                 case On.insert:
                     this.state.item = new Monitor();
                     this.state.elementoinventariable = new ElementoInventariable();
-                    this.state.elementoinventariable.Monitor = this.state.item;
+                    this.state.elementoinventariable.Monitor= this.state.item;
                     break;
                 case On.update:
                 case On.delete:
                     this.state.item = context.Monitors.Find(this.state.Id);
                     this.state.elementoinventariable = context.ElementoInventariables.Find(this.state.Id);
-                    this.CargarElementosAuxiliares();
                     break;
                 default:
                     throw new Exception("Operación no considerada");
@@ -184,45 +187,41 @@
             History.Remove(this.state);
         }
 
+        Workstation workstation = History.Get(typeof(Workstation)) as Workstation;
+        if (workstation!= null) {
+            this.state.item.IdWorkstation= workstation.Id;
+            History.Remove(workstation);
+        }
+
         Persona persona = History.Get(typeof(Persona)) as Persona;
         if (persona != null) {
             this.state.elementoinventariable.IdPersona = persona.Id;
-            this.state.elementoinventariable.IdPersonaNavigation = context.Personas.Find(persona.Id);
-            this.state.persona = persona;
             History.Remove(persona);
         }
         Ubicacion ubicacion = History.Get(typeof(Ubicacion)) as Ubicacion;
         if (ubicacion != null) {
             this.state.elementoinventariable.IdUbicacion = ubicacion.Id;
-            this.state.elementoinventariable.IdUbicacionNavigation = context.Ubicacions.Find(ubicacion.Id);
-            this.state.ubicacion = ubicacion;
-            History.Remove(this.state.ubicacion);
+            History.Remove(ubicacion);
         }
         Marcaymodelo marcaymodelo = History.Get(typeof(Marcaymodelo)) as Marcaymodelo;
         if (marcaymodelo != null) {
             this.state.elementoinventariable.IdMarcaYmodelo = marcaymodelo.Id;
-            this.state.elementoinventariable.IdMarcaYmodeloNavigation = context.Marcaymodelos.Find(marcaymodelo.Id);
-            this.state.marcaymodelo = marcaymodelo;
-            History.Remove(this.state.marcaymodelo);
+            History.Remove(marcaymodelo);
         }
-        Workstation workstation = History.Get(typeof(Workstation)) as Workstation;
-        if (workstation != null) {
-            this.state.item.IdWorkstation = workstation.Id;
-            this.state.item.IdWorkstationNavigation = context.Workstations.Find(workstation.Id);
-            this.state.workstation = workstation;
-            History.Remove(this.state.workstation);
-        }
+        this.CargarElementosAuxiliares();
     }
     protected void CargarElementosAuxiliares() {
-
+        if (this.state.item.IdWorkstation!= null) {
+            this.WorkstationOrdenadorNomb = this.contextLectura.Ordenadors.Find(this.state.item.IdWorkstation).Nomb;
+        }
         if (this.state.elementoinventariable.IdPersona != null) {
-            this.state.persona = context.Personas.Find(this.state.elementoinventariable.IdPersona);
+            this.PersonaNomb = this.contextLectura.Personas.Find(this.state.elementoinventariable.IdPersona).Nomb;
         }
         if (this.state.elementoinventariable.IdUbicacion != null) {
-            this.state.ubicacion = context.Ubicacions.Find(this.state.elementoinventariable.IdUbicacion);
+            this.UbicacionNomb = this.contextLectura.Ubicacions.Find(this.state.elementoinventariable.IdUbicacion).Nomb;
         }
         if (this.state.elementoinventariable.IdMarcaYmodelo != null) {
-            this.state.marcaymodelo = context.Marcaymodelos.Find(this.state.elementoinventariable.IdMarcaYmodelo);
+            this.MarcaymodeloNomb = this.contextLectura.Marcaymodelos.Find(this.state.elementoinventariable.IdMarcaYmodelo).Nomb;
         }
     }
     protected void MakeOperation() {
@@ -260,6 +259,11 @@
         }
 
     }
+    private void btnWorkstationClick() {
+        //Añadir estado al history
+        this.History.Add(this.state);
+        NavigationManager.NavigateTo("WorkstationFL/" + On.select + "/" + "MonitorFE");
+    }
     private void btnPersonaClick() {
         //Añadir estado al history
         this.History.Add(this.state);
@@ -276,10 +280,5 @@
         //Añadir estado al history
         this.History.Add(this.state);
         NavigationManager.NavigateTo("MarcaymodeloFL/" + On.select + "/" + "MonitorFE");
-    }
-    private void btnWorkstationClick() {
-        //Añadir estado al history
-        this.History.Add(this.state);
-        NavigationManager.NavigateTo("WorkstationFL/" + On.select + "/" + "MonitorFE");
     }
 }

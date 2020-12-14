@@ -33,6 +33,7 @@
             <thead>
                 <tr>
                     <th>Código</th>
+                    <th>Nombre Equipo</th>
                     <th>Número de Serie</th>
                     <th>Persona</th>
                     <th>Ubicación</th>
@@ -45,6 +46,7 @@
                     actual = item;
                     <tr>
                         <td>@textoElementoInventariableCodigo</td>
+                        <td>@textoOrdenadorNomb</td>
                         <td>@textoOrdenadorNumeroSerie</td>
                         <td>@textoPersonaNomb</td>
                         <td>@textoUbicacionNomb</td>
@@ -88,6 +90,7 @@
     private Ordenador Ordenador => actual.IdNavigation; //Utilidad para obtener el ordenador
     private ElementoInventariable ElementoInventariable => actual.IdNavigation.IdNavigation;//Utilidad para obtener el ElementoInventariable
     private string textoElementoInventariableCodigo => ElementoInventariable.Codigo ?? "Código no definido";
+    private string textoOrdenadorNomb => Ordenador.Nomb  ?? "Nombre de equipo no definido";
     private string textoOrdenadorNumeroSerie => Ordenador.NumeroSerie ?? "Número de serie no definido";
     private string textoPersonaNomb => ElementoInventariable.IdPersonaNavigation != null ? ElementoInventariable.IdPersonaNavigation.Nomb : "Persona no definida";
     private string textoUbicacionNomb => ElementoInventariable.IdUbicacionNavigation != null ? ElementoInventariable.IdUbicacionNavigation.Nomb : "Ubicación no definida";

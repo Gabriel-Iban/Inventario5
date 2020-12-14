@@ -135,7 +135,7 @@ namespace Inventario5.Models
                 entity.Property(e => e.Memoria).HasColumnName("memoria");
 
                 entity.Property(e => e.Nomb)
-                    .HasMaxLength(20)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("nomb");
 

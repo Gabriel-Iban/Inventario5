@@ -35,6 +35,14 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
+                        <label for="nomb" class="control-label">Nombre del equipo</label>
+                        <InputText @bind-Value="this.state.ordenador.Nomb" id="nomb" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
                         <label for="numeroserie" class="control-label">Número de Serie</label>
                         <InputText @bind-Value="this.state.ordenador.NumeroSerie" id="numeroserie" class="form-control" />
                     </div>
@@ -100,7 +108,7 @@
                 <div class="col">
                     <div class="form-group">
                         <label for="tamanoPantalla" class="control-label">Tamaño de la pantalla (pulgadas)</label>
-                        <InputNumber @bind-Value="this.state.item.TamanoPantalla" id="tamanoPantalla" class="form-control"/>
+                        <InputNumber @bind-Value="this.state.item.TamanoPantalla" id="tamanoPantalla" class="form-control" />
                     </div>
                 </div>
                 <div class="col">
@@ -112,11 +120,11 @@
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="idPersona" class="control-label">Persona asignada</label>
+                        <label for="idPersona" class="control-label grey">Persona asignada</label>
                         <div class="input-group mb-3">
-                            <label class = "form-control">@this.state.persona.Nomb</label>
+                            <label id="idPersona" class="form-control readOnly">@this.PersonaNomb</label>
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnPersonaClick">Buscar</span>
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnPersonaClick">Buscar</button>
                             </div>
                         </div>
                     </div>
@@ -127,9 +135,9 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Ubicación</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="this.state.ubicacion.Nomb" class="form-control" />
+                            <label id="idUbicacion" class="form-control readOnly">@this.UbicacionNomb</label>
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnUbicacionClick">Buscar</span>
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnUbicacionClick">Buscar</button>
                             </div>
                         </div>
                     </div>
@@ -140,9 +148,9 @@
                     <div class="form-group">
                         <label for="idPersona" class="control-label">Marca y Modelo</label>
                         <div class="input-group mb-3">
-                            <InputText @bind-Value="this.state.marcaymodelo.Nomb" class="form-control" />
+                            <label id="idMarcaymodelo" class="form-control readOnly">@this.MarcaymodeloNomb</label>
                             <div class="input-group-append">
-                                <span class="input-group-text btn btn-primary" id="basic-addon2"@onclick="btnMarcaymodeloClick">Buscar</span>
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnMarcaymodeloClick">Buscar</button>
                             </div>
                         </div>
                     </div>
@@ -184,9 +192,6 @@
         public Portatil item;
         public Ordenador ordenador;
         public ElementoInventariable elementoinventariable;
-        public Persona persona = new Persona();
-        public Ubicacion ubicacion = new Ubicacion();
-        public Marcaymodelo marcaymodelo = new Marcaymodelo();
 
     }
     public PortatilFEState state;
@@ -194,7 +199,12 @@
     private List<Unidad> lUnidad;
     private List<Procesador> lProcesador;
 
+    private string PersonaNomb;
+    private string UbicacionNomb;
+    private string MarcaymodeloNomb;
+
     private InventarioDBContext context = new InventarioDBContext();
+    private InventarioDBContext contextLectura = new InventarioDBContext();
 
     private List<string> lMensaje = new List<string>();
 
@@ -219,7 +229,6 @@
                     this.state.item = context.Portatils.Find(this.state.Id);
                     this.state.ordenador = context.Ordenadors.Find(this.state.Id);
                     this.state.elementoinventariable = context.ElementoInventariables.Find(this.state.Id);
-                    this.CargarElementosAuxiliares();
                     break;
                 default:
                     throw new Exception("Operación no considerada");
@@ -235,35 +244,29 @@
         Persona persona = History.Get(typeof(Persona)) as Persona;
         if (persona != null) {
             this.state.elementoinventariable.IdPersona = persona.Id;
-            this.state.elementoinventariable.IdPersonaNavigation = context.Personas.Find(persona.Id);
-            this.state.persona = persona;
             History.Remove(persona);
         }
         Ubicacion ubicacion = History.Get(typeof(Ubicacion)) as Ubicacion;
         if (ubicacion != null) {
             this.state.elementoinventariable.IdUbicacion = ubicacion.Id;
-            this.state.elementoinventariable.IdUbicacionNavigation = context.Ubicacions.Find(ubicacion.Id);
-            this.state.ubicacion = ubicacion;
-            History.Remove(this.state.ubicacion);
+            History.Remove(ubicacion);
         }
         Marcaymodelo marcaymodelo = History.Get(typeof(Marcaymodelo)) as Marcaymodelo;
         if (marcaymodelo != null) {
             this.state.elementoinventariable.IdMarcaYmodelo = marcaymodelo.Id;
-            this.state.elementoinventariable.IdMarcaYmodeloNavigation = context.Marcaymodelos.Find(marcaymodelo.Id);
-            this.state.marcaymodelo = marcaymodelo;
-            History.Remove(this.state.marcaymodelo);
+            History.Remove(marcaymodelo);
         }
+        this.CargarElementosAuxiliares();
     }
     protected void CargarElementosAuxiliares() {
-
         if (this.state.elementoinventariable.IdPersona != null) {
-            this.state.persona = context.Personas.Find(this.state.elementoinventariable.IdPersona);
+            this.PersonaNomb = this.contextLectura.Personas.Find(this.state.elementoinventariable.IdPersona).Nomb;
         }
         if (this.state.elementoinventariable.IdUbicacion != null) {
-            this.state.ubicacion = context.Ubicacions.Find(this.state.elementoinventariable.IdUbicacion);
+            this.UbicacionNomb = this.contextLectura.Ubicacions.Find(this.state.elementoinventariable.IdUbicacion).Nomb;
         }
         if (this.state.elementoinventariable.IdMarcaYmodelo != null) {
-            this.state.marcaymodelo = context.Marcaymodelos.Find(this.state.elementoinventariable.IdMarcaYmodelo);
+            this.MarcaymodeloNomb = this.contextLectura.Marcaymodelos.Find(this.state.elementoinventariable.IdMarcaYmodelo).Nomb;
         }
     }
     protected void MakeOperation() {
