@@ -16,7 +16,9 @@ namespace Inventario5 {
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder => {
+                    webBuilder.UseStaticWebAssets();
                     webBuilder.UseStartup<Startup>();
+
                 });
     }
 }

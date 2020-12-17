@@ -1,0 +1,97 @@
+﻿@page "/Busquedas"
+
+@inject NavigationManager NavigationManager
+
+@using Inventario5.Models
+@using Inventario5.Shared.clases;
+@using Inventario5.Components;
+
+<h1>Búsquedas</h1>
+
+@if (this.Referencias == null) {
+    <p><em>Cargando...</em></p>
+} else {
+    <div class="container">
+        <div class="row"> <div class="col"> <h2>@OperationText</h2> </div> </div>
+        <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
+        <EditForm Model="item" disabled="true">
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="codigo" class="control-label">Nombre</label>
+                        <InputText @bind-Value="item.Nomb" id="codigo" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
+                </div>
+                <div class="col">
+                    <a class="btn btn-secondary" href="PersonaFL">Cancelar</a>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Operation { get; set; }
+    [Parameter]
+    public int Id { get; set; }
+
+    private string OperationText;
+
+    Object Referencias;
+
+    private List<string> lMensaje = new List<string>();
+
+    private Persona item;
+    private InventarioDBContext context = new InventarioDBContext();
+
+    protected override void OnInitialized() {
+        this.OperationText = On.getText(Operation);
+        switch (Operation) {
+            case On.insert:
+                item = new Persona();
+                break;
+            case On.update:
+            case On.delete:
+                item = context.Personas.Find(Id);
+                break;
+        }
+    }
+    protected void MakeOperation() {
+        lMensaje.Clear();
+        switch (Operation) {
+            case On.insert:
+                context.Personas.Add(item);
+                break;
+
+            case On.update:
+                context.Personas.Update(item);
+                break;
+
+            case On.delete:
+                context.Personas.Remove(item);
+                break;
+            default:
+                throw new Exception("Operación no considerada");
+        }
+        int changesNumber = 0;
+        try {
+            changesNumber = context.SaveChanges();
+        } catch (Exception ex) {
+            this.lMensaje.Add(ex.Message);
+            if (ex.InnerException != null) {
+                this.lMensaje.Add(ex.InnerException.Message);
+            }
+            changesNumber = 0;
+        }
+        if (changesNumber > 0) {
+            NavigationManager.NavigateTo("PersonaFL");
+        }
+
+    }
+}
