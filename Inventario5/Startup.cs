@@ -1,15 +1,8 @@
-using Inventario5.Data;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Inventario5.Models;
 using Microsoft.EntityFrameworkCore;
 using Inventario5.Shared.clases;
@@ -27,7 +20,6 @@ namespace Inventario5 {
         public void ConfigureServices(IServiceCollection services) {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>(); //***borrar al final
             string aux = Configuration.GetConnectionString("AppConnection");
             services.AddDbContext<InventarioDBContext>(options =>
                  options.UseSqlServer(aux));

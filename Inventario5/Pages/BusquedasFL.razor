@@ -1,0 +1,150 @@
+﻿@page "/BusquedasFL"
+
+@inject NavigationManager NavigationManager
+@inject History History
+
+@using Inventario5.Models
+@using Microsoft.EntityFrameworkCore;
+@using Inventario5.Shared.clases;
+@using Inventario5.Components;
+@using Inventario5.Pages;
+
+<h1>Resultados de búsqueda</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col"><h2>Lista</h2></div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="BuscarDeNuevo">Buscar de nuevo</button>
+        </div>
+    </div>
+    <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead> <tr> <th>Tipo de Elemento</th><th>Código</th> <th>Nombre</th> <th>Número de serie</th> <th>Opciones</th> </tr> </thead>
+                <tbody>
+                    @foreach (var item in lItem) {
+                        <tr>
+                            <td>@item.TipoElemento</td>
+                            <td>@item.Codigo</td>
+                            <td>@item.Nomb</td>
+                            <td>@item.NumeroSerie</td>
+                            <td>
+                                <div style="white-space: nowrap;">
+                                    <button class="btn btn-primary" @onclick="() => CallOperation(item,On.update)">Modificar</button>&nbsp;
+                                    <button class="btn btn-primary" @onclick="() => CallOperation(item,On.delete)">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private InventarioDBContext context = new InventarioDBContext();
+    private List<string> lMensaje = new List<string>();
+    BusquedasState state;
+
+    public class SearchResult {
+        public string TipoElemento { get; set; }
+        public int Id { get; set; }
+        public string Codigo { get; set; }
+        public string Nomb { get; set; }
+        public string NumeroSerie { get; set; }
+        public SearchResult(string tipoElemento, int id, string codigo, string nomb, string numeroserie) {
+            this.TipoElemento = tipoElemento;
+            this.Id = id;
+            this.Codigo = codigo;
+            this.Nomb = nomb;
+            this.NumeroSerie = numeroserie;
+        }
+
+    }
+    List<SearchResult> lItem;
+    const string TIPO_PORTATIL = "Portátil";
+    const string TIPO_WORKSTATION = "Est. Trab.";
+    const string TIPO_MONITOR = "Monitor";
+
+
+    protected override void OnInitialized() {
+        this.state = History.Get(typeof(BusquedasState)) as BusquedasState;
+        this.lItem = new List<SearchResult>();
+        if (this.state == null) {//si no hay estado de búsqueda se envía a la pagina de búsqueda para que lo cree.
+            this.NavigationManager.NavigateTo("Busquedas");
+        }
+        if (string.IsNullOrWhiteSpace(this.state.ElementoInventariableCodigo)
+            && string.IsNullOrWhiteSpace(this.state.OrdenadorNomb)
+            && string.IsNullOrWhiteSpace(this.state.OrdenadorNumeroSerie)
+            && this.state.IdPersona == null
+            && this.state.IdUbicacion == null
+            && this.state.IdMarcaymodelo == null
+            ) {
+            this.lMensaje.Add("Ha de indicar algún criterio de búsqueda");
+        } else {
+
+            if (this.state.BuscarPortatil) {
+
+                var aux = from i in context.Portatils
+                          join o in context.Ordenadors on i.Id equals o.Id
+                          join e in context.ElementoInventariables on o.Id equals e.Id
+                          where e.Codigo.Contains(this.state.ElementoInventariableCodigo)
+                             || o.Nomb.Contains(this.state.OrdenadorNomb)
+                             || o.NumeroSerie.Contains(this.state.OrdenadorNumeroSerie)
+                             || e.IdPersona.Equals(this.state.IdPersona)
+                             || e.IdPersona.Equals(this.state.IdUbicacion)
+                             || e.IdPersona.Equals(this.state.IdMarcaymodelo)
+                          select new SearchResult(TIPO_PORTATIL, i.Id, e.Codigo, o.Nomb, o.NumeroSerie);
+                this.lItem.AddRange(aux.ToList());
+            }
+            if (this.state.BuscarWorkstation) {
+                var aux = from i in context.Workstations
+                          join o in context.Ordenadors on i.Id equals o.Id
+                          join e in context.ElementoInventariables on o.Id equals e.Id
+                          where e.Codigo.Contains(this.state.ElementoInventariableCodigo)
+                             || o.Nomb.Contains(this.state.OrdenadorNomb)
+                             || o.NumeroSerie.Contains(this.state.OrdenadorNumeroSerie)
+                             || e.IdPersona.Equals(this.state.IdPersona)
+                             || e.IdPersona.Equals(this.state.IdUbicacion)
+                             || e.IdPersona.Equals(this.state.IdMarcaymodelo)
+                          select new SearchResult(TIPO_WORKSTATION, i.Id, e.Codigo, o.Nomb, o.NumeroSerie);
+                this.lItem.AddRange(aux.ToList());
+            }
+            if (this.state.BuscarWorkstation) {
+                var aux = from i in context.Monitors
+                          join e in context.ElementoInventariables on i.Id equals e.Id
+                          where e.Codigo.Contains(this.state.ElementoInventariableCodigo)
+                             || e.IdPersona.Equals(this.state.IdPersona)
+                             || e.IdPersona.Equals(this.state.IdUbicacion)
+                             || e.IdPersona.Equals(this.state.IdMarcaymodelo)
+                          select new SearchResult(TIPO_MONITOR, i.Id, e.Codigo, "", "");
+                this.lItem.AddRange(aux.ToList());
+            }
+        }
+    }
+
+    protected void CallOperation(SearchResult item, string operation) {
+        //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
+        switch (item.TipoElemento) {
+            case TIPO_PORTATIL:
+                this.NavigationManager.NavigateTo(On.generateNavigateTo("PortatilFE", operation, item.Id));
+                break;
+            case TIPO_WORKSTATION:
+                this.NavigationManager.NavigateTo(On.generateNavigateTo("WorkstationFE", operation, item.Id));
+                break;
+            case TIPO_MONITOR:
+                this.NavigationManager.NavigateTo(On.generateNavigateTo("MonitorFE", operation, item.Id));
+                break;
+            default:
+                throw new Exception("Tipo de elemento no considerado");
+        }
+
+    }
+    protected void BuscarDeNuevo() {
+        this.NavigationManager.NavigateTo("Busquedas");
+    }
+}

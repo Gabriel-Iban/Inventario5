@@ -1,6 +1,7 @@
 ﻿@page "/Busquedas"
 
 @inject NavigationManager NavigationManager
+@inject History History;
 
 @using Inventario5.Models
 @using Inventario5.Shared.clases;
@@ -8,32 +9,117 @@
 
 <h1>Búsquedas</h1>
 
-@if (this.Referencias == null) {
-    <p><em>Cargando...</em></p>
-} else {
     <div class="container">
-        <div class="row"> <div class="col"> <h2>@OperationText</h2> </div> </div>
-        <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
-        <EditForm Model="item" disabled="true">
+        <EditForm Model="this.state">
+            <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
+            <div class="row">
+                <div class="col">
+                    <fieldset class="form-group border p-2">
+                        <legend class="w-auto">Elementos a incluir</legend>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="codigo" class="control-label">Incluir Portátiles</label>
+                                    <InputCheckbox @bind-Value="this.state.BuscarPortatil" />
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="codigo" class="control-label">Incluir Estaciones de Trabajo</label>
+                                    <InputCheckbox @bind-Value="this.state.BuscarWorkstation" />
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="codigo" class="control-label">Incluir Monitores</label>
+                                    <InputCheckbox @bind-Value="this.state.BuscarMonitor" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <fieldset class="form-group border p-2">
+                        <legend class="w-auto">Elemento Inventariable (válido para todo tipo de elementos)</legend>
+                        <div class="form-group">
+                            <label for="codigo" class="control-label">Código</label>
+                            <InputText @bind-Value="state.ElementoInventariableCodigo" id="codigo" class="form-control" />
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <fieldset class="form-group border p-2">
+                        <legend class="w-auto">Ordenador (válido para Portátiles y Estaciones de Trabajo)</legend>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="codigo" class="control-label">Nombre</label>
+                                    <InputText @bind-Value="state.OrdenadorNomb" id="codigo" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="codigo" class="control-label">Número de serie</label>
+                                    <InputText @bind-Value="state.OrdenadorNumeroSerie" id="codigo" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
             <div class="row">
                 <div class="col">
                     <div class="form-group">
-                        <label for="codigo" class="control-label">Nombre</label>
-                        <InputText @bind-Value="item.Nomb" id="codigo" class="form-control" />
+                        <label for="idPersona" class="control-label grey">Persona asignada</label>
+                        <div class="input-group mb-3">
+                            <label id="idPersona" class="form-control readOnly">@this.PersonaNomb</label>
+                            <div class="input-group-append">
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnPersonaClick">Buscar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <button class="btn btn-primary" @onclick="MakeOperation">@OperationText</button>
+                    <div class="form-group">
+                        <label for="idPersona" class="control-label">Ubicación</label>
+                        <div class="input-group mb-3">
+                            <label id="idUbicacion" class="form-control readOnly">@this.UbicacionNomb</label>
+                            <div class="input-group-append">
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnUbicacionClick">Buscar</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col">
-                    <a class="btn btn-secondary" href="PersonaFL">Cancelar</a>
+                    <div class="form-group">
+                        <label for="idPersona" class="control-label">Marca y Modelo</label>
+                        <div class="input-group mb-3">
+                            <label id="idMarcaymodelo" class="form-control readOnly">@this.MarcaymodeloNomb</label>
+                            <div class="input-group-append">
+                                <button class="input-group-text btn btn-primary" id="basic-addon2" @onclick="btnMarcaymodeloClick">Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-primary" @onclick="Buscar">Buscar</button>
                 </div>
             </div>
         </EditForm>
     </div>
-}
 
 @code {
     [Parameter]
@@ -43,55 +129,68 @@
 
     private string OperationText;
 
-    Object Referencias;
+    private string PersonaNomb;
+    private string UbicacionNomb;
+    private string MarcaymodeloNomb;
 
     private List<string> lMensaje = new List<string>();
 
-    private Persona item;
     private InventarioDBContext context = new InventarioDBContext();
 
+    public BusquedasState state; 
+
     protected override void OnInitialized() {
-        this.OperationText = On.getText(Operation);
-        switch (Operation) {
-            case On.insert:
-                item = new Persona();
-                break;
-            case On.update:
-            case On.delete:
-                item = context.Personas.Find(Id);
-                break;
+        this.state = History.Get(typeof(BusquedasState)) as BusquedasState;
+        if (this.state == null) {//si no hay estado de búsqueda se envía a la pagina de búsqueda para que lo cree.
+            this.state = new BusquedasState();
+        }
+        Persona persona = History.Get(typeof(Persona)) as Persona;
+        if (persona != null) {
+            this.state.IdPersona = persona.Id;
+            History.Remove(persona);
+        }
+        Ubicacion ubicacion = History.Get(typeof(Ubicacion)) as Ubicacion;
+        if (ubicacion != null) {
+            this.state.IdUbicacion = ubicacion.Id;
+            History.Remove(ubicacion);
+        }
+        Marcaymodelo marcaymodelo = History.Get(typeof(Marcaymodelo)) as Marcaymodelo;
+        if (marcaymodelo != null) {
+            this.state.IdMarcaymodelo = marcaymodelo.Id;
+            History.Remove(marcaymodelo);
+        }
+        this.CargarElementosAuxiliares();
+    }
+    protected void CargarElementosAuxiliares() {
+        if (this.state.IdPersona != null) {
+            this.PersonaNomb = this.context.Personas.Find(this.state.IdPersona).Nomb;
+        }
+        if (this.state.IdUbicacion != null) {
+            this.UbicacionNomb = this.context.Ubicacions.Find(this.state.IdUbicacion).Nomb;
+        }
+        if (this.state.IdMarcaymodelo != null) {
+            this.MarcaymodeloNomb = this.context.Marcaymodelos.Find(this.state.IdMarcaymodelo).Nomb;
         }
     }
-    protected void MakeOperation() {
-        lMensaje.Clear();
-        switch (Operation) {
-            case On.insert:
-                context.Personas.Add(item);
-                break;
+    protected void Buscar() {
+        History.Add(state);
+        this.NavigationManager.NavigateTo("BusquedasFL");
+    }
+    private void btnPersonaClick() {
+        //Añadir estado al history
+        this.History.Add(this.state);
+        NavigationManager.NavigateTo("PersonaFL/" + On.select + "/" + "Busquedas");
+    }
 
-            case On.update:
-                context.Personas.Update(item);
-                break;
+    private void btnUbicacionClick() {
+        //Añadir estado al history
+        this.History.Add(this.state);
+        NavigationManager.NavigateTo("UbicacionFL/" + On.select + "/" + "Busquedas");
+    }
 
-            case On.delete:
-                context.Personas.Remove(item);
-                break;
-            default:
-                throw new Exception("Operación no considerada");
-        }
-        int changesNumber = 0;
-        try {
-            changesNumber = context.SaveChanges();
-        } catch (Exception ex) {
-            this.lMensaje.Add(ex.Message);
-            if (ex.InnerException != null) {
-                this.lMensaje.Add(ex.InnerException.Message);
-            }
-            changesNumber = 0;
-        }
-        if (changesNumber > 0) {
-            NavigationManager.NavigateTo("PersonaFL");
-        }
-
+    private void btnMarcaymodeloClick() {
+        //Añadir estado al history
+        this.History.Add(this.state);
+        NavigationManager.NavigateTo("MarcaymodeloFL/" + On.select + "/" + "Busquedas");
     }
 }
