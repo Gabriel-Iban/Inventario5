@@ -3,6 +3,7 @@
 @using System.Data.SqlClient
 @using System.Text
 @using Inventario5.Models;
+@using Microsoft.Extensions.Configuration;
 
 <h1>Inicializar BD</h1>
 
@@ -90,9 +91,14 @@
     }
     protected void DatosPruebasExec() {
 
-
         SqlConnection con = new System.Data.SqlClient.SqlConnection();
         //con.ConnectionString = "Source=(local);Initial Catalog=\"InventarioDB\";Integrated Security=True";
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
+        string conString = configuration.GetConnectionString("AppConnection");
         con.ConnectionString = "Server=localhost\\SQLEXPRESS;Database=InventarioDB;Trusted_Connection=True;";
         con.Open();
 
