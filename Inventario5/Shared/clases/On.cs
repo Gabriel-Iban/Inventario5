@@ -41,5 +41,8 @@ namespace Inventario5.Shared.clases {
         public static string generateNavigateTo(string pagina, string operacion, int id) {
             return $"{pagina}/{operacion}/{id}";
         }
+        public static string generateNavigateTo(string pagina, string operacion, int id,string llamador) {
+            return $"{pagina}/{operacion}/{id}/{llamador}";
+        }
     }
 }

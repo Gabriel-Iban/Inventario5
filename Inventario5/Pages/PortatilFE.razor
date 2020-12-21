@@ -1,5 +1,5 @@
 ﻿@page "/PortatilFE"
-@page "/PortatilFE/{operationparameter}/{idparameter:int}"
+@page "/PortatilFE/{operationparameter}/{idparameter:int}/{llamadorparameter}"
 
 @inject NavigationManager NavigationManager
 @inject History History
@@ -20,7 +20,7 @@
                 <h2>@state.OperationText</h2>
             </div>
         </div>
-
+        
         <div class="row"><div class="col"><Mensajes lMensaje="this.lMensaje" /></div></div>
         <EditForm Model="state.item">
 
@@ -182,10 +182,13 @@
     public string OperationParameter { get; set; }
     [Parameter]
     public int IdParameter { get; set; }
+    [Parameter]
+    public string LlamadorParameter { get; set; }
 
     public class PortatilFEState : IHistoryItem {
         public string Operation;
         public int Id;
+        public string Llamador;
 
         public string OperationText;
 
@@ -215,6 +218,7 @@
             this.state = new PortatilFEState();
             this.state.Operation = OperationParameter;
             this.state.Id = IdParameter;
+            this.state.Llamador = LlamadorParameter;
             this.state.OperationText = On.getText(this.state.Operation);
             switch (this.state.Operation) {
                 case On.insert:
@@ -303,7 +307,7 @@
             changesNumber = 0;
         }
         if (changesNumber > 0) {
-            NavigationManager.NavigateTo("PortatilFL");
+            NavigationManager.NavigateTo(this.state.Llamador);
         }
 
     }

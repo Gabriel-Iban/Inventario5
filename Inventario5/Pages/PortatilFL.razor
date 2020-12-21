@@ -70,7 +70,6 @@
 
 @code {
 
-    private const string OPERATION_PAGE = "PortatilFE";
     private const string SINGULAR_NAME= "Portátil";
     private const string PLURAL_NAME = "Portátiles";
 
@@ -129,7 +128,7 @@
         } else { //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
             History.Add(this.state);
             int itemId = item == null ? 0 : item.Id; // si no hay item por ser una inserción usamos el como itemId un 0
-            this.NavigationManager.NavigateTo(On.generateNavigateTo("PortatilFE", operation, itemId));
+            this.NavigationManager.NavigateTo(On.generateNavigateTo("PortatilFE", operation, itemId,"PortatilFL"));
         }
 
     }

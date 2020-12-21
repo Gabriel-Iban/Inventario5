@@ -1,5 +1,5 @@
 ﻿@page "/WorkstationFE"
-@page "/WorkstationFE/{operationparameter}/{idparameter:int}"
+@page "/WorkstationFE/{operationparameter}/{idparameter:int}/{llamadorparameter}"
 
 @inject NavigationManager NavigationManager
 @inject History History
@@ -169,10 +169,13 @@
     public string OperationParameter { get; set; }
     [Parameter]
     public int IdParameter { get; set; }
+    [Parameter]
+    public string LlamadorParameter{ get; set; }
 
     public class WorkstationFEState : IHistoryItem {
         public string Operation;
         public int Id;
+        public string Llamador;
 
         public string OperationText;
 
@@ -202,6 +205,7 @@
             this.state = new WorkstationFEState();
             this.state.Operation = OperationParameter;
             this.state.Id = IdParameter;
+            this.state.Llamador = LlamadorParameter;
             this.state.OperationText = On.getText(this.state.Operation);
             switch (this.state.Operation) {
                 case On.insert:
@@ -290,7 +294,7 @@
             changesNumber = 0;
         }
         if (changesNumber > 0) {
-            NavigationManager.NavigateTo("WorkstationFL");
+            NavigationManager.NavigateTo(this.state.Llamador);
         }
 
     }

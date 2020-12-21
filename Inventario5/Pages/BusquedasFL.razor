@@ -88,16 +88,15 @@
         } else {
 
             if (this.state.BuscarPortatil) {
-
                 var aux = from i in context.Portatils
                           join o in context.Ordenadors on i.Id equals o.Id
                           join e in context.ElementoInventariables on o.Id equals e.Id
-                          where e.Codigo.Contains(this.state.ElementoInventariableCodigo)
-                             || o.Nomb.Contains(this.state.OrdenadorNomb)
-                             || o.NumeroSerie.Contains(this.state.OrdenadorNumeroSerie)
+                          where (!string.IsNullOrWhiteSpace(this.state.ElementoInventariableCodigo) && e.Codigo.Contains(this.state.ElementoInventariableCodigo))
+                             || (!string.IsNullOrWhiteSpace(this.state.OrdenadorNomb) && o.Nomb.Contains(this.state.OrdenadorNomb))
+                             || (!string.IsNullOrWhiteSpace(this.state.OrdenadorNumeroSerie) && o.NumeroSerie.Contains(this.state.OrdenadorNumeroSerie))
                              || e.IdPersona.Equals(this.state.IdPersona)
-                             || e.IdPersona.Equals(this.state.IdUbicacion)
-                             || e.IdPersona.Equals(this.state.IdMarcaymodelo)
+                             || e.IdUbicacion.Equals(this.state.IdUbicacion)
+                             || e.IdMarcaYmodelo.Equals(this.state.IdMarcaymodelo)
                           select new SearchResult(TIPO_PORTATIL, i.Id, e.Codigo, o.Nomb, o.NumeroSerie);
                 this.lItem.AddRange(aux.ToList());
             }
@@ -105,22 +104,22 @@
                 var aux = from i in context.Workstations
                           join o in context.Ordenadors on i.Id equals o.Id
                           join e in context.ElementoInventariables on o.Id equals e.Id
-                          where e.Codigo.Contains(this.state.ElementoInventariableCodigo)
-                             || o.Nomb.Contains(this.state.OrdenadorNomb)
-                             || o.NumeroSerie.Contains(this.state.OrdenadorNumeroSerie)
+                          where (!string.IsNullOrWhiteSpace(this.state.ElementoInventariableCodigo) && e.Codigo.Contains(this.state.ElementoInventariableCodigo))
+                             || (!string.IsNullOrWhiteSpace(this.state.OrdenadorNomb) && o.Nomb.Contains(this.state.OrdenadorNomb))
+                             || (!string.IsNullOrWhiteSpace(this.state.OrdenadorNumeroSerie) && o.NumeroSerie.Contains(this.state.OrdenadorNumeroSerie))
                              || e.IdPersona.Equals(this.state.IdPersona)
-                             || e.IdPersona.Equals(this.state.IdUbicacion)
-                             || e.IdPersona.Equals(this.state.IdMarcaymodelo)
+                             || e.IdUbicacion.Equals(this.state.IdUbicacion)
+                             || e.IdMarcaYmodelo.Equals(this.state.IdMarcaymodelo)
                           select new SearchResult(TIPO_WORKSTATION, i.Id, e.Codigo, o.Nomb, o.NumeroSerie);
                 this.lItem.AddRange(aux.ToList());
             }
-            if (this.state.BuscarWorkstation) {
+            if (this.state.BuscarMonitor) {
                 var aux = from i in context.Monitors
                           join e in context.ElementoInventariables on i.Id equals e.Id
-                          where e.Codigo.Contains(this.state.ElementoInventariableCodigo)
+                          where (!string.IsNullOrWhiteSpace(this.state.ElementoInventariableCodigo) && e.Codigo.Contains(this.state.ElementoInventariableCodigo))
                              || e.IdPersona.Equals(this.state.IdPersona)
-                             || e.IdPersona.Equals(this.state.IdUbicacion)
-                             || e.IdPersona.Equals(this.state.IdMarcaymodelo)
+                             || e.IdUbicacion.Equals(this.state.IdUbicacion)
+                             || e.IdMarcaYmodelo.Equals(this.state.IdMarcaymodelo)
                           select new SearchResult(TIPO_MONITOR, i.Id, e.Codigo, "", "");
                 this.lItem.AddRange(aux.ToList());
             }
@@ -131,13 +130,13 @@
         //En otro caso almacenamos el estado para poder volver y vamos al FE para realizar la operación requerida
         switch (item.TipoElemento) {
             case TIPO_PORTATIL:
-                this.NavigationManager.NavigateTo(On.generateNavigateTo("PortatilFE", operation, item.Id));
+                this.NavigationManager.NavigateTo(On.generateNavigateTo("PortatilFE", operation, item.Id,"BusquedasFL"));
                 break;
             case TIPO_WORKSTATION:
-                this.NavigationManager.NavigateTo(On.generateNavigateTo("WorkstationFE", operation, item.Id));
+                this.NavigationManager.NavigateTo(On.generateNavigateTo("WorkstationFE", operation, item.Id,"BusquedasFL"));
                 break;
             case TIPO_MONITOR:
-                this.NavigationManager.NavigateTo(On.generateNavigateTo("MonitorFE", operation, item.Id));
+                this.NavigationManager.NavigateTo(On.generateNavigateTo("MonitorFE", operation, item.Id,"BusquedasFL"));
                 break;
             default:
                 throw new Exception("Tipo de elemento no considerado");
